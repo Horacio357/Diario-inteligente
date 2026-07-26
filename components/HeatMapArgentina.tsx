@@ -262,165 +262,170 @@ const HeatMapArgentina = React.memo(function HeatMapArgentinaComponent({
           </button>
         </div>
 
-        <ComposableMap
-          projection="geoMercator"
-          projectionConfig={{
-            scale: 1400
-          }}
-          width={800}
-          height={900}
-          style={{ width: "100%", height: "auto", display: "block" }}
-        >
-          {/* Neon SVG filter */}
-          <defs>
-            <filter id="neon-glow-map">
-              <feGaussianBlur stdDeviation="1.5" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-            <filter id="radar-glow">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-
-          <ZoomableGroup
-            center={position.coordinates}
-            zoom={position.zoom}
-            minZoom={0.5}
-            maxZoom={8}
-            onMoveEnd={(pos) => setPosition(pos)}
-            onMoveStart={() => setHovered(null)}
+        {/* ── Client Side Gating to prevent SSR Hydration Mismatches ── */}
+        {mounted ? (
+          <ComposableMap
+            projection="geoMercator"
+            projectionConfig={{
+              scale: 1400
+            }}
+            width={800}
+            height={900}
+            style={{ width: "100%", height: "auto", display: "block" }}
           >
-            {/* Geographies (Base map outlines) */}
-            <Geographies geography="/argentina-provinces.json">
-              {({ geographies }) =>
-                geographies.map(geo => {
-                  const geoId = geo.properties.id;
-                  const appId = geoJsonToAppId[geoId];
-                  if (!appId) return null;
+            {/* Neon SVG filter */}
+            <defs>
+              <filter id="neon-glow-map">
+                <feGaussianBlur stdDeviation="1.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <filter id="radar-glow">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
 
-                  const metric = getMetric(appId);
-                  const isHovered = hovered?.id === appId;
+            <ZoomableGroup
+              center={position.coordinates}
+              zoom={position.zoom}
+              minZoom={0.5}
+              maxZoom={8}
+              onMoveEnd={(pos) => setPosition(pos)}
+              onMoveStart={() => setHovered(null)}
+            >
+              {/* Geographies (Base map outlines) */}
+              <Geographies geography="/argentina-provinces.json">
+                {({ geographies }) =>
+                  geographies.map(geo => {
+                    const geoId = geo.properties.id;
+                    const appId = geoJsonToAppId[geoId];
+                    if (!appId) return null;
 
-                  let fill = "rgba(0, 0, 0, 0.4)";
-                  let stroke = "rgba(57, 255, 20, 0.25)"; // Translucent green borders
-                  let strokeWidth = 0.5;
+                    const metric = getMetric(appId);
+                    const isHovered = hovered?.id === appId;
 
-                  if (metric) {
-                    fill = sentimentToFill(metric.sentiment);
-                    stroke = sentimentToNeonColor(metric.sentiment) + "80"; // 50% opacity
-                  }
+                    let fill = "rgba(0, 0, 0, 0.4)";
+                    let stroke = "rgba(57, 255, 20, 0.25)"; // Translucent green borders
+                    let strokeWidth = 0.5;
 
-                  if (isHovered && metric) {
-                    fill = sentimentToFill(metric.sentiment).replace("0.15", "0.35");
-                    stroke = sentimentToNeonColor(metric.sentiment);
-                    strokeWidth = 1.8;
-                  }
+                    if (metric) {
+                      fill = sentimentToFill(metric.sentiment);
+                      stroke = sentimentToNeonColor(metric.sentiment) + "80"; // 50% opacity
+                    }
 
-                  return (
-                    <Geography
-                      key={geo.rsmKey}
-                      geography={geo}
-                      fill={fill}
-                      stroke={stroke}
-                      strokeWidth={strokeWidth}
-                      style={{
-                        default: { outline: "none", transition: "all 0.2s" },
-                        hover: {
-                          outline: "none",
-                          fill: metric ? sentimentToFill(metric.sentiment).replace("0.15", "0.3") : "rgba(57, 255, 20, 0.08)",
-                          stroke: metric ? sentimentToNeonColor(metric.sentiment) : NEON,
-                          strokeWidth: 1.5,
-                          cursor: "pointer"
-                        },
-                        pressed: { outline: "none" }
-                      }}
-                      onMouseEnter={e => {
-                        if (metric) {
-                          const rect = (e.target as SVGPathElement).getBoundingClientRect();
-                          setHovered({
-                            id: appId,
-                            name: geo.properties.nombre,
-                            capital: provinceCapitals[appId] || "",
-                            metric,
-                            x: rect.left + rect.width / 2,
-                            y: rect.top,
-                          });
-                        }
-                      }}
-                      onMouseLeave={() => setHovered(null)}
-                      onClick={() => {
-                        if (topic || personalityName) {
-                          setSelectedProvince({ id: appId, name: geo.properties.nombre });
-                        }
-                      }}
+                    if (isHovered && metric) {
+                      fill = sentimentToFill(metric.sentiment).replace("0.15", "0.35");
+                      stroke = sentimentToNeonColor(metric.sentiment);
+                      strokeWidth = 1.8;
+                    }
+
+                    return (
+                      <Geography
+                        key={geo.rsmKey}
+                        geography={geo}
+                        fill={fill}
+                        stroke={stroke}
+                        strokeWidth={strokeWidth}
+                        style={{
+                          default: { outline: "none", transition: "all 0.2s" },
+                          hover: {
+                            outline: "none",
+                            fill: metric ? sentimentToFill(metric.sentiment).replace("0.15", "0.3") : "rgba(57, 255, 20, 0.08)",
+                            stroke: metric ? sentimentToNeonColor(metric.sentiment) : NEON,
+                            strokeWidth: 1.5,
+                            cursor: "pointer"
+                          },
+                          pressed: { outline: "none" }
+                        }}
+                        onMouseEnter={e => {
+                          if (metric) {
+                            const rect = (e.target as SVGPathElement).getBoundingClientRect();
+                            setHovered({
+                              id: appId,
+                              name: geo.properties.nombre,
+                              capital: provinceCapitals[appId] || "",
+                              metric,
+                              x: rect.left + rect.width / 2,
+                              y: rect.top,
+                            });
+                          }
+                        }}
+                        onMouseLeave={() => setHovered(null)}
+                        onClick={() => {
+                          if (topic || personalityName) {
+                            setSelectedProvince({ id: appId, name: geo.properties.nombre });
+                          }
+                        }}
+                      />
+                    );
+                  })
+                }
+              </Geographies>
+
+              {/* Markers: Animated Radar Pings and Labels */}
+              {Object.entries(PROVINCE_COORDS).map(([appId, coords]) => {
+                const metric = getMetric(appId);
+                const label = PROVINCE_LABELS[appId] || appId;
+                const isHovered = hovered?.id === appId;
+
+                // Default green scanner dot if no metric, colored ping if there is data
+                const color = metric ? sentimentToNeonColor(metric.sentiment) : NEON;
+                const hasData = !!metric;
+
+                return (
+                  <Marker key={appId} coordinates={coords}>
+                    {/* Outer animated radar pulse */}
+                    {hasData && (
+                      <circle r={2} fill="none" stroke={color} strokeWidth={1} filter="url(#radar-glow)">
+                        <animate attributeName="r" from={2} to={18} dur="2.5s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" from={0.8} to={0} dur="2.5s" repeatCount="indefinite" />
+                      </circle>
+                    )}
+
+                    {/* Core solid scanner point */}
+                    <circle
+                      r={hasData ? 3 : 1.5}
+                      fill={color}
+                      opacity={hasData ? 0.9 : 0.4}
+                      style={{ transition: "all 0.2s" }}
                     />
-                  );
-                })
-              }
-            </Geographies>
 
-            {/* Markers: Animated Radar Pings and Labels */}
-            {Object.entries(PROVINCE_COORDS).map(([appId, coords]) => {
-              const metric = getMetric(appId);
-              const label = PROVINCE_LABELS[appId] || appId;
-              const isHovered = hovered?.id === appId;
-
-              // Default green scanner dot if no metric, colored ping if there is data
-              const color = metric ? sentimentToNeonColor(metric.sentiment) : NEON;
-              const hasData = !!metric;
-
-              return (
-                <Marker key={appId} coordinates={coords}>
-                  {/* Outer animated radar pulse */}
-                  {hasData && (
-                    <circle r={2} fill="none" stroke={color} strokeWidth={1} filter="url(#radar-glow)">
-                      <animate attributeName="r" from={2} to={18} dur="2.5s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" from={0.8} to={0} dur="2.5s" repeatCount="indefinite" />
-                    </circle>
-                  )}
-
-                  {/* Core solid scanner point */}
-                  <circle
-                    r={hasData ? 3 : 1.5}
-                    fill={color}
-                    opacity={hasData ? 0.9 : 0.4}
-                    style={{ transition: "all 0.2s" }}
-                  />
-
-                  {/* Text label underneath the radar ping */}
-                  {appId !== "buenos-aires-ciudad" && (
-                    <text
-                      y={hasData ? 12 : 8}
-                      textAnchor="middle"
-                      style={{
-                        pointerEvents: "none",
-                        fontFamily: "'Courier New', monospace",
-                        fontWeight: "bold",
-                        fontSize: "6.5px",
-                        fill: isHovered ? "#ffffff" : (hasData ? color : "rgba(57, 255, 20, 0.4)"),
-                        textTransform: "uppercase",
-                        letterSpacing: "0.5px",
-                        textShadow: isHovered 
-                          ? "0 0 6px #fff" 
-                          : `0 0 3px ${hasData ? color : "rgba(57, 255, 20, 0.2)"}`,
-                        transition: "all 0.2s"
-                      }}
-                    >
-                      {label}
-                    </text>
-                  )}
-                </Marker>
-              );
-            })}
-          </ZoomableGroup>
-        </ComposableMap>
+                    {/* Text label underneath the radar ping */}
+                    {appId !== "buenos-aires-ciudad" && (
+                      <text
+                        y={hasData ? 12 : 8}
+                        textAnchor="middle"
+                        style={{
+                          pointerEvents: "none",
+                          fontFamily: "Outfit, sans-serif",
+                          fontWeight: "bold",
+                          fontSize: "7.5px",
+                          fill: isHovered ? "#ffffff" : (hasData ? color : "rgba(57, 255, 20, 0.45)"),
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                          textShadow: isHovered 
+                            ? "0 0 6px #fff" 
+                            : `0 0 3px ${hasData ? color : "rgba(57, 255, 20, 0.2)"}`,
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        {label}
+                      </text>
+                    )}
+                  </Marker>
+                );
+              })}
+            </ZoomableGroup>
+          </ComposableMap>
+        ) : (
+          <div style={{ width: "100%", aspectRatio: "800/900", background: "#02040a" }} />
+        )}
       </div>
 
       {/* Tooltip flotante via portal */}
@@ -440,10 +445,10 @@ const HeatMapArgentina = React.memo(function HeatMapArgentinaComponent({
           boxShadow: `0 0 20px ${sentimentToNeonColor(hovered.metric.sentiment)}30`,
           animation: "fadeInUp 0.15s ease both",
           pointerEvents: "none",
-          fontFamily: "'Courier New', monospace",
+          fontFamily: "Inter, sans-serif",
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <span style={{ fontWeight: 700, fontSize: "0.95rem", color: NEON }}>{hovered.name}</span>
+            <span style={{ fontFamily: "Outfit, sans-serif", fontWeight: 700, fontSize: "0.95rem", color: NEON }}>{hovered.name}</span>
             {hovered.metric.dominantArchetype && (
               <span style={{ fontSize: "0.75rem" }}>
                 {ARCHETYPE_CONFIG[hovered.metric.dominantArchetype]?.emoji}
@@ -515,9 +520,9 @@ const HeatMapArgentina = React.memo(function HeatMapArgentinaComponent({
           boxShadow: "0 0 8px rgba(57, 255, 20, 0.2)",
         }} />
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ fontSize: "0.65rem", color: "#ff0055", fontFamily: "'Courier New', monospace" }}>▮ Desfavorable</span>
-          <span style={{ fontSize: "0.65rem", color: "#ffb700", fontFamily: "'Courier New', monospace" }}>▮ Neutro</span>
-          <span style={{ fontSize: "0.65rem", color: "#00ff66", fontFamily: "'Courier New', monospace" }}>▮ Favorable</span>
+          <span style={{ fontSize: "0.65rem", color: "#ff0055", fontFamily: "Inter, sans-serif" }}>▮ Desfavorable</span>
+          <span style={{ fontSize: "0.65rem", color: "#ffb700", fontFamily: "Inter, sans-serif" }}>▮ Neutro</span>
+          <span style={{ fontSize: "0.65rem", color: "#00ff66", fontFamily: "Inter, sans-serif" }}>▮ Favorable</span>
         </div>
       </div>
 
@@ -532,7 +537,7 @@ const HeatMapArgentina = React.memo(function HeatMapArgentinaComponent({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          fontFamily: "'Courier New', monospace",
+          fontFamily: "Inter, sans-serif",
         }}>
           <span style={{ fontSize: "0.78rem", color: "rgba(57, 255, 20, 0.5)" }}>Aprobación Nacional Promedio</span>
           <span style={{ fontSize: "1rem", fontWeight: 700, color: sentimentToNeonColor(nationalAvg), textShadow: `0 0 8px ${sentimentToNeonColor(nationalAvg)}` }}>
