@@ -99,7 +99,7 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
   const [hovered, setHovered] = useState<HoveredProvince | null>(null);
   const [mounted, setMounted] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState<{ id: string; name: string } | null>(null);
-  const [position, setPosition] = useState({ coordinates: [0, 0] as [number, number], zoom: 1 });
+  const [position, setPosition] = useState({ coordinates: [-63.5, -40] as [number, number], zoom: 1 });
   const [viewMode, setViewMode] = useState<"cyberpunk" | "sentiment">("cyberpunk");
 
   useEffect(() => {
@@ -229,7 +229,7 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
             -
           </button>
           <button 
-            onClick={() => setPosition({ coordinates: [0, 0], zoom: 1 })}
+            onClick={() => setPosition({ coordinates: [-63.5, -40], zoom: 1 })}
             style={{
               width: "32px", height: "32px", borderRadius: "8px",
               background: "rgba(10, 14, 26, 0.85)", border: "1px solid var(--glass-border)",
