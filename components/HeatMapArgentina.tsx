@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { ComposableMap, Geographies, Geography } from "react-simple-maps";
+import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
 import { geoCentroid } from "d3-geo";
 import { ARGENTINA_PROVINCES } from "@/lib/argentina-map-data";
 import { PersonalityAnalysis, ProvinceMetric, ArchetypeKey } from "@/lib/types";
@@ -99,6 +99,8 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
   const [hovered, setHovered] = useState<HoveredProvince | null>(null);
   const [mounted, setMounted] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState<{ id: string; name: string } | null>(null);
+  const [position, setPosition] = useState({ coordinates: [-63.5, -38] as [number, number], zoom: 1 });
+  const [viewMode, setViewMode] = useState<"cyberpunk" | "sentiment">("cyberpunk");
 
   useEffect(() => {
     setMounted(true);
@@ -147,19 +149,112 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
         </p>
       </div>
 
-      {/* SVG Mapa usando react-simple-maps */}
-      <div style={{ position: "relative" }}>
+      {/* Control panel de modos de visualización */}
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+        <button
+          onClick={() => setViewMode("cyberpunk")}
+          style={{
+            padding: "0.4rem 0.8rem",
+            borderRadius: "8px",
+            background: viewMode === "cyberpunk" ? "rgba(0, 255, 102, 0.12)" : "rgba(255,255,255,0.02)",
+            color: viewMode === "cyberpunk" ? "#00ff66" : "var(--text-muted)",
+            border: `1px solid ${viewMode === "cyberpunk" ? "#00ff66" : "var(--glass-border)"}`,
+            fontSize: "0.75rem",
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "all 0.2s",
+          }}
+        >
+          🟢 Ciber-Mapa Neon (Threatbutt)
+        </button>
+        <button
+          onClick={() => setViewMode("sentiment")}
+          style={{
+            padding: "0.4rem 0.8rem",
+            borderRadius: "8px",
+            background: viewMode === "sentiment" ? "rgba(0, 212, 255, 0.12)" : "rgba(255,255,255,0.02)",
+            color: viewMode === "sentiment" ? "var(--accent-primary)" : "var(--text-muted)",
+            border: `1px solid ${viewMode === "sentiment" ? "var(--accent-primary)" : "var(--glass-border)"}`,
+            fontSize: "0.75rem",
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "all 0.2s",
+          }}
+        >
+          📊 Térmico Convencional
+        </button>
+      </div>
+
+      {/* SVG Mapa usando react-simple-maps con Zoom y Pan */}
+      <div style={{ position: "relative", overflow: "hidden", background: "rgba(5, 8, 17, 0.4)", borderRadius: "var(--radius-md)", border: "1px solid var(--glass-border)" }}>
+        
+        {/* Controles de Zoom Flotantes */}
+        <div style={{
+          position: "absolute",
+          top: "15px",
+          right: "15px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.4rem",
+          zIndex: 10,
+        }}>
+          <button 
+            onClick={() => setPosition(pos => ({ ...pos, zoom: Math.min(pos.zoom + 0.3, 6) }))}
+            style={{
+              width: "32px", height: "32px", borderRadius: "8px",
+              background: "rgba(10, 14, 26, 0.85)", border: "1px solid var(--glass-border)",
+              color: "white", cursor: "pointer", display: "flex",
+              alignItems: "center", justifyContent: "center", fontWeight: "bold",
+              backdropFilter: "blur(8px)", transition: "all 0.2s", fontSize: "1.1rem"
+            }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = "var(--accent-primary)"}
+            onMouseLeave={e => e.currentTarget.style.borderColor = "var(--glass-border)"}
+            title="Acercar"
+          >
+            +
+          </button>
+          <button 
+            onClick={() => setPosition(pos => ({ ...pos, zoom: Math.max(pos.zoom - 0.3, 0.6) }))}
+            style={{
+              width: "32px", height: "32px", borderRadius: "8px",
+              background: "rgba(10, 14, 26, 0.85)", border: "1px solid var(--glass-border)",
+              color: "white", cursor: "pointer", display: "flex",
+              alignItems: "center", justifyContent: "center", fontWeight: "bold",
+              backdropFilter: "blur(8px)", transition: "all 0.2s", fontSize: "1.1rem"
+            }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = "var(--accent-primary)"}
+            onMouseLeave={e => e.currentTarget.style.borderColor = "var(--glass-border)"}
+            title="Alejar"
+          >
+            -
+          </button>
+          <button 
+            onClick={() => setPosition({ coordinates: [-63.5, -38], zoom: 1 })}
+            style={{
+              width: "32px", height: "32px", borderRadius: "8px",
+              background: "rgba(10, 14, 26, 0.85)", border: "1px solid var(--glass-border)",
+              color: "white", cursor: "pointer", display: "flex",
+              alignItems: "center", justifyContent: "center", fontSize: "0.85rem",
+              backdropFilter: "blur(8px)", transition: "all 0.2s"
+            }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = "var(--accent-primary)"}
+            onMouseLeave={e => e.currentTarget.style.borderColor = "var(--glass-border)"}
+            title="Restablecer vista"
+          >
+            🎯
+          </button>
+        </div>
+
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
-            scale: 1100, // Escala reducida para que quepa todo el territorio (norte a sur)
-            center: [-63.5, -40] // Centro geográfico desplazado levemente al sur
+            scale: 1100, // Escala base
           }}
           style={{ width: "100%", height: "auto", maxHeight: "480px" }}
         >
           <defs>
             <filter id="glow-province">
-              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feGaussianBlur stdDeviation="3" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -167,109 +262,154 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
             </filter>
           </defs>
 
-          <Geographies geography="/argentina-provinces.json">
-            {({ geographies, projection }) =>
-              geographies.map(geo => {
-                const geoId = geo.properties.id;
-                const appId = geoJsonToAppId[geoId];
-                if (!appId) return null;
+          <ZoomableGroup
+            center={position.coordinates}
+            zoom={position.zoom}
+            minZoom={0.5}
+            maxZoom={6}
+            onMoveEnd={(pos) => setPosition(pos)}
+            onMoveStart={() => setHovered(null)}
+          >
+            <Geographies geography="/argentina-provinces.json">
+              {({ geographies, projection }) =>
+                geographies.map(geo => {
+                  const geoId = geo.properties.id;
+                  const appId = geoJsonToAppId[geoId];
+                  if (!appId) return null;
 
-                const metric = getMetric(appId);
-                const isHovered = hovered?.id === appId;
-                const baseColorHex = ARCHETYPE_CONFIG[archetype as ArchetypeKey]?.color || "#34d399";
-                
-                const getThemedColor = (sentiment: number, intensity: number) => {
-                  const normalized = (sentiment + 1) / 2;
-                  const alpha = 0.15 + (normalized * 0.75) * intensity;
-                  return hexToRgba(baseColorHex, alpha);
-                };
+                  const metric = getMetric(appId);
+                  const isHovered = hovered?.id === appId;
+                  const baseColorHex = ARCHETYPE_CONFIG[archetype as ArchetypeKey]?.color || "#34d399";
+                  
+                  const getThemedColor = (sentiment: number, intensity: number) => {
+                    const normalized = (sentiment + 1) / 2;
+                    const alpha = 0.15 + (normalized * 0.75) * intensity;
+                    return hexToRgba(baseColorHex, alpha);
+                  };
 
-                const fillColor = metric
-                  ? getThemedColor(metric.sentiment, metric.intensity)
-                  : "rgba(255, 255, 255, 0.03)";
-                const strokeColor = metric
-                  ? hexToRgba(baseColorHex, 0.5)
-                  : "rgba(255, 255, 255, 0.08)";
+                  const getCyberSentimentColor = (sentiment: number) => {
+                    if (sentiment > 0.15) return "rgba(0, 255, 102, 0.4)"; // Neon Green
+                    if (sentiment < -0.15) return "rgba(255, 0, 85, 0.4)"; // Neon Red
+                    return "rgba(255, 183, 0, 0.4)"; // Neon Yellow/Orange
+                  };
 
-                const capital = provinceCapitals[appId] || "";
+                  const getCyberSentimentStroke = (sentiment: number) => {
+                    if (sentiment > 0.15) return "#00ff66";
+                    if (sentiment < -0.15) return "#ff0055";
+                    return "#ffb700";
+                  };
 
-                // Calcular centroide proyectado por D3 para situar las etiquetas de texto
-                const centroidGeo = geoCentroid(geo);
-                const projectedCentroid = projection(centroidGeo);
-                const [cx, cy] = projectedCentroid || [0, 0];
+                  let fillColor = "rgba(255, 255, 255, 0.03)";
+                  let strokeColor = "rgba(255, 255, 255, 0.08)";
 
-                const lines = ABBR[appId] || [geo.properties.nombre];
-                const fontSize = lines[0].length > 7 ? 10 : 12; // Tamaño adaptado a la cuadrícula 800x600
-                const lineHeight = fontSize + 2.5;
-                const totalH = lines.length * lineHeight;
+                  if (viewMode === "cyberpunk") {
+                    fillColor = isHovered && metric
+                      ? getCyberSentimentColor(metric.sentiment)
+                      : "rgba(5, 8, 17, 0.85)";
+                    strokeColor = isHovered && metric
+                      ? getCyberSentimentStroke(metric.sentiment)
+                      : "#39ff14"; // Neon green outline like Threatbutt map
+                  } else {
+                    fillColor = metric
+                      ? getThemedColor(metric.sentiment, metric.intensity)
+                      : "rgba(255, 255, 255, 0.03)";
+                    strokeColor = metric
+                      ? hexToRgba(baseColorHex, 0.5)
+                      : "rgba(255, 255, 255, 0.08)";
+                  }
 
-                return (
-                  <g key={geo.rsmKey}>
-                    <Geography
-                      geography={geo}
-                      fill={fillColor}
-                      stroke={isHovered ? "var(--accent-primary)" : strokeColor}
-                      strokeWidth={isHovered ? 2 : 0.8}
-                      style={{
-                        default: { outline: "none", transition: "all 0.2s ease" },
-                        hover: { outline: "none", fill: fillColor, stroke: "var(--accent-primary)", strokeWidth: 2, cursor: "pointer", filter: "url(#glow-province)" },
-                        pressed: { outline: "none" }
-                      }}
-                      onMouseEnter={e => {
-                        if (metric) {
-                          const rect = (e.target as SVGPathElement).getBoundingClientRect();
-                          setHovered({
-                            id: appId,
-                            name: geo.properties.nombre,
-                            capital,
-                            metric,
-                            x: rect.left + rect.width / 2,
-                            y: rect.top,
-                          });
-                        }
-                      }}
-                      onMouseLeave={() => setHovered(null)}
-                      onClick={() => {
-                        if (topic || personalityName) {
-                          setSelectedProvince({ id: appId, name: geo.properties.nombre });
-                        }
-                      }}
-                    />
-                    
-                    {/* Renderizar etiquetas si la provincia no es CABA y las coordenadas del centroide son válidas */}
-                    {appId !== "buenos-aires-ciudad" && cx !== 0 && cy !== 0 && (
-                      <text
-                        x={cx}
-                        y={cy - totalH / 2 + lineHeight / 2}
-                        textAnchor="middle"
+                  const capital = provinceCapitals[appId] || "";
+
+                  // Calcular centroide proyectado por D3 para situar las etiquetas de texto
+                  const centroidGeo = geoCentroid(geo);
+                  const projectedCentroid = projection(centroidGeo);
+                  const [cx, cy] = projectedCentroid || [0, 0];
+
+                  const lines = ABBR[appId] || [geo.properties.nombre];
+                  const fontSize = lines[0].length > 7 ? 10 : 12; // Tamaño adaptado a la cuadrícula 800x600
+                  const lineHeight = fontSize + 2.5;
+                  const totalH = lines.length * lineHeight;
+
+                  return (
+                    <g key={geo.rsmKey}>
+                      <Geography
+                        geography={geo}
+                        fill={fillColor}
+                        stroke={strokeColor}
+                        strokeWidth={isHovered ? 2.2 : (viewMode === "cyberpunk" ? 1.0 : 0.8)}
                         style={{
-                          pointerEvents: "none",
-                          fontFamily: "Outfit, sans-serif",
-                          fontWeight: "700",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.2px",
+                          default: { outline: "none", transition: "all 0.2s ease" },
+                          hover: { 
+                            outline: "none", 
+                            fill: viewMode === "cyberpunk" && metric ? getCyberSentimentColor(metric.sentiment) : fillColor, 
+                            stroke: viewMode === "cyberpunk" && metric ? getCyberSentimentStroke(metric.sentiment) : "var(--accent-primary)", 
+                            strokeWidth: 2.2, 
+                            cursor: "pointer", 
+                            filter: "url(#glow-province)" 
+                          },
+                          pressed: { outline: "none" }
                         }}
-                      >
-                        {lines.map((line, li) => (
-                          <tspan
-                            key={li}
-                            x={cx}
-                            dy={li === 0 ? 0 : lineHeight}
-                            style={{
-                              fontSize: `${fontSize}px`,
-                              fill: isHovered ? "white" : "rgba(255,255,255,0.85)",
-                            }}
-                          >
-                            {line}
-                          </tspan>
-                        ))}
-                      </text>
-                    )}
-                  </g>
-                );
-              })
-            }
-          </Geographies>
+                        onMouseEnter={e => {
+                          if (metric) {
+                            const rect = (e.target as SVGPathElement).getBoundingClientRect();
+                            setHovered({
+                              id: appId,
+                              name: geo.properties.nombre,
+                              capital,
+                              metric,
+                              x: rect.left + rect.width / 2,
+                              y: rect.top,
+                            });
+                          }
+                        }}
+                        onMouseLeave={() => setHovered(null)}
+                        onClick={() => {
+                          if (topic || personalityName) {
+                            setSelectedProvince({ id: appId, name: geo.properties.nombre });
+                          }
+                        }}
+                      />
+                      
+                      {/* Renderizar etiquetas si la provincia no es CABA y las coordenadas del centroide son válidas */}
+                      {appId !== "buenos-aires-ciudad" && cx !== 0 && cy !== 0 && (
+                        <text
+                          x={cx}
+                          y={cy - totalH / 2 + lineHeight / 2}
+                          textAnchor="middle"
+                          style={{
+                            pointerEvents: "none",
+                            fontFamily: "Outfit, sans-serif",
+                            fontWeight: "700",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.2px",
+                            textShadow: viewMode === "cyberpunk" ? "0 0 5px rgba(57, 255, 20, 0.6)" : "none",
+                          }}
+                        >
+                          {lines.map((line, li) => (
+                            <tspan
+                              key={li}
+                              x={cx}
+                              dy={li === 0 ? 0 : lineHeight}
+                              style={{
+                                fontSize: `${fontSize}px`,
+                                fill: isHovered 
+                                  ? "white" 
+                                  : viewMode === "cyberpunk" 
+                                    ? "rgba(57, 255, 20, 0.85)" 
+                                    : "rgba(255,255,255,0.85)",
+                              }}
+                            >
+                              {line}
+                            </tspan>
+                          ))}
+                        </text>
+                      )}
+                    </g>
+                  );
+                })
+              }
+            </Geographies>
+          </ZoomableGroup>
         </ComposableMap>
 
         {/* Tooltip flotante */}
@@ -354,7 +494,7 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
 
       {/* Leyenda del mapa */}
       <div style={{ marginTop: "1rem" }}>
-        <div style={{ width: "100%", height: "6px", background: `linear-gradient(to right, rgba(255,255,255,0.05), ${ARCHETYPE_CONFIG[archetype as ArchetypeKey]?.color || "#34d399"})`, borderRadius: "3px", marginBottom: "0.5rem" }} />
+        <div style={{ width: "100%", height: "6px", background: viewMode === "cyberpunk" ? "linear-gradient(to right, #ff0055 0%, #ffb700 50%, #00ff66 100%)" : `linear-gradient(to right, rgba(255,255,255,0.05), ${ARCHETYPE_CONFIG[archetype as ArchetypeKey]?.color || "#34d399"})`, borderRadius: "3px", marginBottom: "0.5rem" }} />
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>Muy desfavorable</span>
           <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>Neutro</span>
