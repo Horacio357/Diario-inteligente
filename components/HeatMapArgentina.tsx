@@ -265,8 +265,7 @@ const HeatMapArgentina = React.memo(function HeatMapArgentinaComponent({
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
-            scale: 1400,
-            center: [-64, -38.5]
+            scale: 1400
           }}
           width={800}
           height={900}
