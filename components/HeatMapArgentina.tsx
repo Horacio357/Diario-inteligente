@@ -99,7 +99,7 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
   const [hovered, setHovered] = useState<HoveredProvince | null>(null);
   const [mounted, setMounted] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState<{ id: string; name: string } | null>(null);
-  const [position, setPosition] = useState({ coordinates: [-63.5, -40] as [number, number], zoom: 1 });
+  const [position, setPosition] = useState({ coordinates: [-64, -38.5] as [number, number], zoom: 1 });
   const [viewMode, setViewMode] = useState<"cyberpunk" | "sentiment">("cyberpunk");
 
   useEffect(() => {
@@ -229,7 +229,7 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
             -
           </button>
           <button 
-            onClick={() => setPosition({ coordinates: [-63.5, -40], zoom: 1 })}
+            onClick={() => setPosition({ coordinates: [-64, -38.5], zoom: 1 })}
             style={{
               width: "32px", height: "32px", borderRadius: "8px",
               background: "rgba(10, 14, 26, 0.85)", border: "1px solid var(--glass-border)",
@@ -248,10 +248,12 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
-            scale: 1100, // Escala base
-            center: [-63.5, -40] // Centro de proyección original para evitar singularidad polar
+            scale: 1200,
+            center: [-64, -38.5]
           }}
-          style={{ width: "100%", height: "auto", maxHeight: "480px" }}
+          width={800}
+          height={900}
+          style={{ width: "100%", height: "auto" }}
         >
           <defs>
             <filter id="glow-province">
@@ -270,6 +272,7 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
             maxZoom={6}
             onMoveEnd={(pos) => setPosition(pos)}
             onMoveStart={() => setHovered(null)}
+            translateExtent={[[-200, -200], [1000, 1100]]}
           >
             <Geographies geography="/argentina-provinces.json">
               {({ geographies, projection }) =>
@@ -300,8 +303,8 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
                     return "#ffb700";
                   };
 
-                  let fillColor = "rgba(255, 255, 255, 0.03)";
-                  let strokeColor = "rgba(255, 255, 255, 0.08)";
+                  let fillColor: string;
+                  let strokeColor: string;
 
                   if (viewMode === "cyberpunk") {
                     fillColor = isHovered && metric
@@ -309,14 +312,15 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
                       : "rgba(5, 8, 17, 0.85)";
                     strokeColor = isHovered && metric
                       ? getCyberSentimentStroke(metric.sentiment)
-                      : "#39ff14"; // Neon green outline like Threatbutt map
+                      : "#39ff14"; // Neon green outline
                   } else {
-                    fillColor = metric
-                      ? getThemedColor(metric.sentiment, metric.intensity)
-                      : "rgba(255, 255, 255, 0.03)";
-                    strokeColor = metric
-                      ? hexToRgba(baseColorHex, 0.5)
-                      : "rgba(255, 255, 255, 0.08)";
+                    if (metric) {
+                      fillColor = getThemedColor(metric.sentiment, metric.intensity);
+                      strokeColor = hexToRgba(baseColorHex, 0.5);
+                    } else {
+                      fillColor = "rgba(255, 255, 255, 0.03)";
+                      strokeColor = "rgba(255, 255, 255, 0.15)";
+                    }
                   }
 
                   const capital = provinceCapitals[appId] || "";
@@ -327,8 +331,8 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
                   const [cx, cy] = projectedCentroid || [0, 0];
 
                   const lines = ABBR[appId] || [geo.properties.nombre];
-                  const fontSize = lines[0].length > 7 ? 10 : 12; // Tamaño adaptado a la cuadrícula 800x600
-                  const lineHeight = fontSize + 2.5;
+                  const fontSize = lines[0].length > 7 ? 8 : 9;
+                  const lineHeight = fontSize + 2;
                   const totalH = lines.length * lineHeight;
 
                   return (
@@ -337,14 +341,14 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
                         geography={geo}
                         fill={fillColor}
                         stroke={strokeColor}
-                        strokeWidth={isHovered ? 2.2 : (viewMode === "cyberpunk" ? 1.0 : 0.8)}
+                        strokeWidth={isHovered ? 2 : (viewMode === "cyberpunk" ? 0.8 : 0.5)}
                         style={{
                           default: { outline: "none", transition: "all 0.2s ease" },
                           hover: { 
                             outline: "none", 
                             fill: viewMode === "cyberpunk" && metric ? getCyberSentimentColor(metric.sentiment) : fillColor, 
                             stroke: viewMode === "cyberpunk" && metric ? getCyberSentimentStroke(metric.sentiment) : "var(--accent-primary)", 
-                            strokeWidth: 2.2, 
+                            strokeWidth: 2, 
                             cursor: "pointer", 
                             filter: "url(#glow-province)" 
                           },
@@ -371,7 +375,7 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
                         }}
                       />
                       
-                      {/* Renderizar etiquetas si la provincia no es CABA y las coordenadas del centroide son válidas */}
+                      {/* Province name labels */}
                       {appId !== "buenos-aires-ciudad" && cx !== 0 && cy !== 0 && (
                         <text
                           x={cx}
@@ -383,7 +387,7 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
                             fontWeight: "700",
                             textTransform: "uppercase",
                             letterSpacing: "0.2px",
-                            textShadow: viewMode === "cyberpunk" ? "0 0 5px rgba(57, 255, 20, 0.6)" : "none",
+                            textShadow: viewMode === "cyberpunk" ? "0 0 5px rgba(57, 255, 20, 0.6)" : "0 1px 3px rgba(0,0,0,0.8)",
                           }}
                         >
                           {lines.map((line, li) => (
