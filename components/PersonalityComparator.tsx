@@ -475,7 +475,7 @@ export default function PersonalityComparator() {
           onSelect={setPersonA}
           exclude={personB?.name}
         />
-        <div style={{ paddingTop: "2rem", display: "flex", alignItems: "center" }}>
+        <div className="responsive-comparator-arrow">
           <div
             style={{
               width: "32px",

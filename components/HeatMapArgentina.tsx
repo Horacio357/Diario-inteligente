@@ -2,10 +2,66 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { ComposableMap, Geographies, Geography } from "react-simple-maps";
+import { geoCentroid } from "d3-geo";
 import { ARGENTINA_PROVINCES } from "@/lib/argentina-map-data";
-import { PersonalityAnalysis, ProvinceMetric } from "@/lib/types";
+import { PersonalityAnalysis, ProvinceMetric, ArchetypeKey } from "@/lib/types";
 import { ARCHETYPE_CONFIG, sentimentToColor } from "@/lib/utils";
 import ProvinceDetailPanel from "@/components/ProvinceDetailPanel";
+
+const geoJsonToAppId: Record<string, string> = {
+  "02": "buenos-aires-ciudad",
+  "06": "buenos-aires",
+  "10": "catamarca",
+  "22": "chaco",
+  "26": "chubut",
+  "14": "cordoba",
+  "18": "corrientes",
+  "30": "entre-rios",
+  "34": "formosa",
+  "38": "jujuy",
+  "42": "la-pampa",
+  "46": "la-rioja",
+  "50": "mendoza",
+  "54": "misiones",
+  "58": "neuquen",
+  "62": "rio-negro",
+  "66": "salta",
+  "70": "san-juan",
+  "74": "san-luis",
+  "78": "santa-cruz",
+  "82": "santa-fe",
+  "86": "santiago-del-estero",
+  "94": "tierra-del-fuego", // Mapea Tierra del Fuego, Antártida e Islas del Atlántico Sur
+  "90": "tucuman"
+};
+
+const ABBR: Record<string, string[]> = {
+  "buenos-aires": ["Buenos", "Aires"],
+  "buenos-aires-ciudad": ["CABA"],
+  "catamarca": ["Cata-", "marca"],
+  "corrientes": ["Corr."],
+  "entre-rios": ["E. Ríos"],
+  "formosa": ["Formosa"],
+  "la-pampa": ["L. Pampa"],
+  "la-rioja": ["La Rioja"],
+  "mendoza": ["Mendoza"],
+  "misiones": ["Mis."],
+  "neuquen": ["Neuquén"],
+  "rio-negro": ["R. Negro"],
+  "san-juan": ["S. Juan"],
+  "san-luis": ["S. Luis"],
+  "santa-cruz": ["Sta Cruz"],
+  "santa-fe": ["Sta. Fe"],
+  "santiago-del-estero": ["Stgo.", "Estero"],
+  "tierra-del-fuego": ["T. Fuego"],
+  "tucuman": ["Tucumán"],
+  "chaco": ["Chaco"],
+  "chubut": ["Chubut"],
+  "cordoba": ["Córdoba"],
+  "jujuy": ["Jujuy"],
+  "salta": ["Salta"],
+};
 
 interface HeatMapArgentinaProps {
   provinceData?: Record<string, ProvinceMetric>;
@@ -24,19 +80,6 @@ interface HoveredProvince {
   metric: ProvinceMetric;
   x: number;
   y: number;
-}
-
-function sentimentToHeatColor(sentiment: number, intensity: number): string {
-  // Interpolar entre rojo profundo y verde esmeralda pasando por gris neutro
-  const alpha = 0.35 + intensity * 0.55;
-
-  if (sentiment > 0.5) return `rgba(16, 185, 129, ${alpha})`; // verde intenso
-  if (sentiment > 0.25) return `rgba(52, 211, 153, ${alpha})`; // verde suave
-  if (sentiment > 0.05) return `rgba(110, 231, 183, ${alpha})`; // verde muy suave
-  if (sentiment > -0.05) return `rgba(234, 179, 8, ${alpha})`; // amarillo/neutro
-  if (sentiment > -0.25) return `rgba(251, 146, 60, ${alpha})`; // naranja
-  if (sentiment > -0.5) return `rgba(239, 68, 68, ${alpha})`; // rojo suave
-  return `rgba(220, 38, 38, ${alpha})`; // rojo intenso
 }
 
 function sentimentToStroke(sentiment: number): string {
@@ -73,6 +116,14 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
     return "Muy desfavorable";
   };
 
+  const provinceCapitals = useMemo(() => {
+    const map: Record<string, string> = {};
+    ARGENTINA_PROVINCES.forEach(p => {
+      map[p.id] = p.capital;
+    });
+    return map;
+  }, []);
+
   const nationalAvg = useMemo(() => {
     if (!provinceData) return 0;
     const values = Object.values(provinceData).map(p => p.sentiment);
@@ -83,7 +134,11 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
     <div style={{ position: "relative", width: "100%" }}>
       {/* Header */}
       <div style={{ marginBottom: "1rem" }}>
-        <div className="section-label">Mapa de Calor Territorial</div>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/img/globo-terraqueo-con-mapas-de-continentes.png" alt="Globe Icon" style={{ width: "18px", height: "18px", objectFit: "contain", opacity: 0.8 }} />
+          <div className="section-label" style={{ margin: 0 }}>Mapa de Calor Territorial</div>
+        </div>
         <h3 style={{ fontFamily: "Outfit", fontSize: "1rem", color: "var(--text-primary)" }}>
           {personalityName ? `Percepción de ${personalityName}` : "Humor Social · Argentina"}
         </h3>
@@ -92,10 +147,14 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
         </p>
       </div>
 
-      {/* SVG Mapa */}
+      {/* SVG Mapa usando react-simple-maps */}
       <div style={{ position: "relative" }}>
-        <svg
-          viewBox="120 88 260 560"
+        <ComposableMap
+          projection="geoMercator"
+          projectionConfig={{
+            scale: 1100, // Escala reducida para que quepa todo el territorio (norte a sur)
+            center: [-63.5, -40] // Centro geográfico desplazado levemente al sur
+          }}
           style={{ width: "100%", height: "auto", maxHeight: "480px" }}
         >
           <defs>
@@ -108,125 +167,110 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
             </filter>
           </defs>
 
-          {ARGENTINA_PROVINCES.map(province => {
-            const metric = getMetric(province.id);
-            const isHovered = hovered?.id === province.id;
-            const baseColorHex = ARCHETYPE_CONFIG[archetype as any]?.color || "#34d399";
-            
-            const getThemedColor = (sentiment: number, intensity: number) => {
-              // Convertir sentiment (-1 a 1) a alpha (0.1 a 0.9)
-              const normalized = (sentiment + 1) / 2;
-              const alpha = 0.15 + (normalized * 0.75) * intensity;
-              return hexToRgba(baseColorHex, alpha);
-            };
+          <Geographies geography="/argentina-provinces.json">
+            {({ geographies, projection }) =>
+              geographies.map(geo => {
+                const geoId = geo.properties.id;
+                const appId = geoJsonToAppId[geoId];
+                if (!appId) return null;
 
-            const fillColor = metric
-              ? getThemedColor(metric.sentiment, metric.intensity)
-              : "rgba(255, 255, 255, 0.03)";
-            const strokeColor = metric
-              ? hexToRgba(baseColorHex, 0.5)
-              : "rgba(255, 255, 255, 0.08)";
+                const metric = getMetric(appId);
+                const isHovered = hovered?.id === appId;
+                const baseColorHex = ARCHETYPE_CONFIG[archetype as ArchetypeKey]?.color || "#34d399";
+                
+                const getThemedColor = (sentiment: number, intensity: number) => {
+                  const normalized = (sentiment + 1) / 2;
+                  const alpha = 0.15 + (normalized * 0.75) * intensity;
+                  return hexToRgba(baseColorHex, alpha);
+                };
 
-            return (
-              <g key={province.id}>
-                <path
-                  d={province.path}
-                  fill={fillColor}
-                  stroke={isHovered ? "var(--accent-primary)" : strokeColor}
-                  strokeWidth={isHovered ? 2 : 0.8}
-                  style={{
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    filter: isHovered ? "url(#glow-province)" : "none",
-                    transform: isHovered ? "scale(1.02)" : "scale(1)",
-                    transformOrigin: `${province.cx}px ${province.cy}px`,
-                  }}
-                  onMouseEnter={e => {
-                    if (metric) {
-                      const rect = (e.target as SVGPathElement).getBoundingClientRect();
-                      setHovered({
-                        id: province.id,
-                        name: province.name,
-                        capital: province.capital,
-                        metric,
-                        x: rect.left + rect.width / 2,
-                        y: rect.top,
-                      });
-                    }
-                  }}
-                  onMouseLeave={() => setHovered(null)}
-                  onClick={() => {
-                    if (topic || personalityName) {
-                      setSelectedProvince({ id: province.id, name: province.name });
-                    }
-                  }}
-                />
-                {/* Labels de TODAS las provincias */}
-                {(() => {
-                  // Abreviaciones para nombres largos que no caben en el polígono
-                  const ABBR: Record<string, string[]> = {
-                    "buenos-aires": ["Buenos", "Aires"],
-                    "buenos-aires-ciudad": ["CABA"],
-                    "catamarca": ["Cata-", "marca"],
-                    "corrientes": ["Corr."],
-                    "entre-rios": ["E. Ríos"],
-                    "formosa": ["Formosa"],
-                    "la-pampa": ["L. Pampa"],
-                    "la-rioja": ["La Rioja"],
-                    "mendoza": ["Mendoza"],
-                    "misiones": ["Mis."],
-                    "neuquen": ["Neuquén"],
-                    "rio-negro": ["R. Negro"],
-                    "san-juan": ["S. Juan"],
-                    "san-luis": ["S. Luis"],
-                    "santa-cruz": ["Sta Cruz"],
-                    "santa-fe": ["Sta. Fe"],
-                    "santiago-del-estero": ["Stgo.", "Estero"],
-                    "tierra-del-fuego": ["T. Fuego"],
-                    "tucuman": ["Tucumán"],
-                    "chaco": ["Chaco"],
-                    "chubut": ["Chubut"],
-                    "cordoba": ["Córdoba"],
-                    "jujuy": ["Jujuy"],
-                    "salta": ["Salta"],
-                  };
-                  const lines = ABBR[province.id] || [province.name];
-                  const fontSize = lines[0].length > 7 ? 4 : 5;
-                  const lineHeight = fontSize + 1.5;
-                  const totalH = lines.length * lineHeight;
-                  return (
-                    <text
-                      x={province.cx}
-                      y={province.cy - totalH / 2 + lineHeight / 2}
-                      textAnchor="middle"
+                const fillColor = metric
+                  ? getThemedColor(metric.sentiment, metric.intensity)
+                  : "rgba(255, 255, 255, 0.03)";
+                const strokeColor = metric
+                  ? hexToRgba(baseColorHex, 0.5)
+                  : "rgba(255, 255, 255, 0.08)";
+
+                const capital = provinceCapitals[appId] || "";
+
+                // Calcular centroide proyectado por D3 para situar las etiquetas de texto
+                const centroidGeo = geoCentroid(geo);
+                const projectedCentroid = projection(centroidGeo);
+                const [cx, cy] = projectedCentroid || [0, 0];
+
+                const lines = ABBR[appId] || [geo.properties.nombre];
+                const fontSize = lines[0].length > 7 ? 10 : 12; // Tamaño adaptado a la cuadrícula 800x600
+                const lineHeight = fontSize + 2.5;
+                const totalH = lines.length * lineHeight;
+
+                return (
+                  <g key={geo.rsmKey}>
+                    <Geography
+                      geography={geo}
+                      fill={fillColor}
+                      stroke={isHovered ? "var(--accent-primary)" : strokeColor}
+                      strokeWidth={isHovered ? 2 : 0.8}
                       style={{
-                        pointerEvents: "none",
-                        fontFamily: "Outfit, sans-serif",
-                        fontWeight: "700",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.2px",
+                        default: { outline: "none", transition: "all 0.2s ease" },
+                        hover: { outline: "none", fill: fillColor, stroke: "var(--accent-primary)", strokeWidth: 2, cursor: "pointer", filter: "url(#glow-province)" },
+                        pressed: { outline: "none" }
                       }}
-                    >
-                      {lines.map((line, li) => (
-                        <tspan
-                          key={li}
-                          x={province.cx}
-                          dy={li === 0 ? 0 : lineHeight}
-                          style={{
-                            fontSize: `${fontSize}px`,
-                            fill: isHovered ? "white" : "rgba(255,255,255,0.85)",
-                          }}
-                        >
-                          {line}
-                        </tspan>
-                      ))}
-                    </text>
-                  );
-                })()}
-              </g>
-            );
-          })}
-        </svg>
+                      onMouseEnter={e => {
+                        if (metric) {
+                          const rect = (e.target as SVGPathElement).getBoundingClientRect();
+                          setHovered({
+                            id: appId,
+                            name: geo.properties.nombre,
+                            capital,
+                            metric,
+                            x: rect.left + rect.width / 2,
+                            y: rect.top,
+                          });
+                        }
+                      }}
+                      onMouseLeave={() => setHovered(null)}
+                      onClick={() => {
+                        if (topic || personalityName) {
+                          setSelectedProvince({ id: appId, name: geo.properties.nombre });
+                        }
+                      }}
+                    />
+                    
+                    {/* Renderizar etiquetas si la provincia no es CABA y las coordenadas del centroide son válidas */}
+                    {appId !== "buenos-aires-ciudad" && cx !== 0 && cy !== 0 && (
+                      <text
+                        x={cx}
+                        y={cy - totalH / 2 + lineHeight / 2}
+                        textAnchor="middle"
+                        style={{
+                          pointerEvents: "none",
+                          fontFamily: "Outfit, sans-serif",
+                          fontWeight: "700",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.2px",
+                        }}
+                      >
+                        {lines.map((line, li) => (
+                          <tspan
+                            key={li}
+                            x={cx}
+                            dy={li === 0 ? 0 : lineHeight}
+                            style={{
+                              fontSize: `${fontSize}px`,
+                              fill: isHovered ? "white" : "rgba(255,255,255,0.85)",
+                            }}
+                          >
+                            {line}
+                          </tspan>
+                        ))}
+                      </text>
+                    )}
+                  </g>
+                );
+              })
+            }
+          </Geographies>
+        </ComposableMap>
 
         {/* Tooltip flotante */}
         {mounted && hovered && createPortal(
@@ -310,7 +354,7 @@ export default function HeatMapArgentina({ provinceData, personalityName, archet
 
       {/* Leyenda del mapa */}
       <div style={{ marginTop: "1rem" }}>
-        <div style={{ width: "100%", height: "6px", background: `linear-gradient(to right, rgba(255,255,255,0.05), ${ARCHETYPE_CONFIG[archetype as any]?.color || "#34d399"})`, borderRadius: "3px", marginBottom: "0.5rem" }} />
+        <div style={{ width: "100%", height: "6px", background: `linear-gradient(to right, rgba(255,255,255,0.05), ${ARCHETYPE_CONFIG[archetype as ArchetypeKey]?.color || "#34d399"})`, borderRadius: "3px", marginBottom: "0.5rem" }} />
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>Muy desfavorable</span>
           <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>Neutro</span>

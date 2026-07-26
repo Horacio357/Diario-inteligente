@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Eye, Zap, Globe, Users, Star, GitCompare, X } from "lucide-react";
+import { Eye, Zap, Globe, Users, Star, GitCompare, X, Menu } from "lucide-react";
 import SearchBar from "@/components/SearchBar";
+import MissingPersonsSearch from "@/components/MissingPersonsSearch";
 import PersonalityCard from "@/components/PersonalityCard";
 import HeatMapArgentina from "@/components/HeatMapArgentina";
 import SocialPulse from "@/components/SocialPulse";
@@ -90,13 +91,16 @@ export default function HomePage() {
               width: "36px",
               height: "36px",
               borderRadius: "10px",
-              background: "linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))",
+              background: "rgba(0, 212, 255, 0.04)",
+              border: "1px solid rgba(0, 212, 255, 0.25)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 16px rgba(0,212,255,0.3)",
+              boxShadow: "0 0 16px rgba(0,212,255,0.15)",
+              overflow: "hidden",
             }}>
-              <Eye size={18} color="#0a0e1a" strokeWidth={2.5} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/img/red-global.png" alt="Logo" style={{ width: "24px", height: "24px", objectFit: "contain" }} />
             </div>
             <div>
               <span style={{ fontFamily: "Outfit", fontSize: "1.1rem", fontWeight: 800, color: "var(--text-primary)" }}>
@@ -116,12 +120,13 @@ export default function HomePage() {
           </div>
 
           {/* Nav links - Desktop */}
-          <div style={{ display: "flex", alignItems: "center", gap: "2rem" }} className="nav-desktop">
+          <div style={{ display: "flex", alignItems: "center", gap: "2rem" }} className="nav-desktop hide-mobile">
             {[
               { label: "Dashboard", href: "#dashboard" },
               { label: "Análisis", href: "#analysis-section" },
               { label: "Comparar", href: "#comparador" },
               { label: "Mapa", href: "#mapa" },
+              { label: "Personas Perdidas", href: "#personas-perdidas" },
               { label: "Manual de Uso", href: "/manual" },
             ].map(item => (
               <a key={item.label} href={item.href} style={{
@@ -142,9 +147,73 @@ export default function HomePage() {
             <button className="btn-premium" onClick={() => setShowProModal(true)} style={{ padding: "0.5rem 1rem", fontSize: "0.8rem" }}>
               <Star size={13} /> Premium
             </button>
+            <button
+              className="show-mobile"
+              onClick={() => setNavOpen(!navOpen)}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--text-primary)",
+                cursor: "pointer",
+                padding: "0.25rem",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {navOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Drawer Navigation */}
+      {navOpen && (
+        <div 
+          className="show-mobile"
+          style={{
+            position: "fixed",
+            top: "64px",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(10, 14, 26, 0.98)",
+            backdropFilter: "blur(24px)",
+            zIndex: 99,
+            display: "flex",
+            flexDirection: "column",
+            padding: "2rem",
+            gap: "1.5rem",
+            borderBottom: "1px solid var(--glass-border)",
+            animation: "fadeIn 0.25s ease both",
+          }}
+        >
+          {[
+            { label: "Dashboard", href: "#dashboard" },
+            { label: "Análisis", href: "#analysis-section" },
+            { label: "Comparar", href: "#comparador" },
+            { label: "Mapa", href: "#mapa" },
+            { label: "Personas Perdidas", href: "#personas-perdidas" },
+            { label: "Manual de Uso", href: "/manual" },
+          ].map(item => (
+            <a 
+              key={item.label} 
+              href={item.href} 
+              onClick={() => setNavOpen(false)}
+              style={{
+                color: "var(--text-primary)",
+                textDecoration: "none",
+                fontSize: "1.2rem",
+                fontWeight: 700,
+                fontFamily: "Outfit",
+                borderBottom: "1px solid rgba(255,255,255,0.05)",
+                paddingBottom: "0.75rem",
+              }}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      )}
 
       {/* ─── NEWS TICKER ─────────────────────────────────────────────────── */}
       {/* ─── TICKERS ──────────────────────────────────────────────────────── */}
@@ -239,11 +308,7 @@ export default function HomePage() {
           </div>
 
           {/* ─── DASHBOARD GRID ─────────────────────────────────────────── */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "300px 1fr 300px",
-            gap: "1.5rem",
-            alignItems: "start",
+          <div className="dashboard-grid" style={{
             animation: "fadeInUp 0.7s ease 0.4s both",
           }}>
 
@@ -503,7 +568,7 @@ export default function HomePage() {
 
               <div style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 340px))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 340px))",
                 justifyContent: "center",
                 gap: "1.5rem",
                 maxWidth: "1100px",
@@ -589,6 +654,8 @@ export default function HomePage() {
           <PersonalityComparator />
         </div>
       </section>
+
+      <MissingPersonsSearch />
 
       {/* ─── FEATURES SECTION ─────────────────────────────────────────────── */}
       <section id="about" style={{ padding: "4rem 1.5rem", borderTop: "1px solid var(--glass-border)" }}>

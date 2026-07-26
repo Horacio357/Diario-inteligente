@@ -18,6 +18,11 @@ export interface PersonalityAnalysis {
     trust: number;          // 0-100
   };
   sentimentOverall: number; // -1 to 1
+  archetypeReasoning?: string;
+  narratives?: {
+    positive: string[];
+    negative: string[];
+  };
   provinceData: Record<string, ProvinceMetric>;
   topNews: NewsItem[];
   keywords: string[];
@@ -309,3 +314,27 @@ export const MOCK_PERSONALITIES: PersonalityAnalysis[] = [
     }
   },
 ];
+
+export interface MissingPerson {
+  nombre: string;
+  slug: string;
+  url: string;
+  fecha_desaparicion: string;
+  recompensa: {
+    tiene_recompensa: boolean;
+    monto: number | null;
+  };
+  descripcion: string;
+  foto_url: string;
+  anio_desaparicion?: string;
+}
+
+export interface MissingPersonsResponse {
+  data: {
+    fuente: string;
+    url_fuente: string;
+    total: number;
+    personas: MissingPerson[];
+  };
+}
+

@@ -14,14 +14,52 @@ export default function FinanceTicker() {
   const [items, setItems] = useState(mockFinanceData);
 
   useEffect(() => {
-    // Simulamos una actualización en tiempo real cada 30 segundos
+    async function fetchRiesgoPais() {
+      try {
+        const res = await fetch("/api/riesgo-pais");
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.data) {
+            const val = json.data.ultimo;
+            const variation = json.data.variacion || 0;
+            const trend = json.data.tendencia || "neutro";
+            
+            setItems(prev => prev.map(item => {
+              if (item.symbol === "RIESGO PAÍS") {
+                const trendMapped = trend === "alza" ? "up" : trend === "baja" ? "down" : "neutral";
+                const changeStr = variation >= 0 ? `+${variation}%` : `${variation}%`;
+                return {
+                  ...item,
+                  value: `${val} pts`,
+                  change: changeStr,
+                  trend: trendMapped
+                };
+              }
+              return item;
+            }));
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching live Riesgo Pais:", err);
+      }
+    }
+    fetchRiesgoPais();
+  }, []);
+
+  useEffect(() => {
+    // Simulamos una actualización en tiempo real del dólar blue cada 30 segundos
     const interval = setInterval(() => {
-      setItems(prev => prev.map(item => ({
-        ...item,
-        value: item.symbol === "DÓLAR BLUE" ? `$1.40${Math.floor(Math.random() * 10)},00` : item.value,
-        change: `${(Math.random() * 3 - 1.5).toFixed(1)}%`,
-        trend: Math.random() > 0.5 ? "up" : "down"
-      })));
+      setItems(prev => prev.map(item => {
+        if (item.symbol === "DÓLAR BLUE") {
+          return {
+            ...item,
+            value: `$1.40${Math.floor(Math.random() * 10)},00`,
+            change: `${(Math.random() * 2 - 1).toFixed(1)}%`,
+            trend: Math.random() > 0.5 ? "up" : "down"
+          };
+        }
+        return item;
+      }));
     }, 30000);
     return () => clearInterval(interval);
   }, []);

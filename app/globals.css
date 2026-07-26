@@ -81,6 +81,11 @@ html {
 body {
   font-family: 'Inter', 'Outfit', system-ui, -apple-system, sans-serif;
   background-color: var(--primary-900);
+  background-image: url('/img/Gemini_Generated_Image_nnw21snnw21snnw2.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
@@ -93,11 +98,11 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 20% -10%, rgba(124, 58, 237, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 110%, rgba(0, 212, 255, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 100% 80% at 50% 50%, rgba(10, 14, 26, 1) 40%, transparent 100%);
+    radial-gradient(ellipse 80% 60% at 20% -10%, rgba(124, 58, 237, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 110%, rgba(0, 212, 255, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 80% at 50% 50%, rgba(10, 14, 26, 0.88) 40%, rgba(10, 14, 26, 0.96) 100%);
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 body::after {
@@ -108,7 +113,7 @@ body::after {
     radial-gradient(circle at 1px 1px, rgba(0, 212, 255, 0.04) 1px, transparent 0);
   background-size: 48px 48px;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 /* ========================================
@@ -580,6 +585,18 @@ h4, h5, h6 { font-family: 'Outfit', sans-serif; font-weight: 600; }
   }
 }
 
+.show-mobile {
+  display: none !important;
+}
+
+.responsive-comparator-arrow {
+  padding-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
 @media (max-width: 768px) {
   .responsive-grid-2 {
     grid-template-columns: 1fr;
@@ -596,10 +613,14 @@ h4, h5, h6 { font-family: 'Outfit', sans-serif; font-weight: 600; }
   }
   .responsive-comparator-arrow {
     transform: rotate(90deg);
+    padding-top: 0;
     margin: 0 auto;
   }
   .hide-mobile {
     display: none !important;
+  }
+  .show-mobile {
+    display: flex !important;
   }
   .responsive-flex-row {
     flex-direction: column;
