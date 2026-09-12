@@ -36,10 +36,14 @@
     "@types/react-simple-maps": "^3.0.6",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
-    "i": "^0.3.7",
-    "npm": "^11.19.1",
     "prisma": "^5.22.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "react-simple-maps": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
   }
 }
