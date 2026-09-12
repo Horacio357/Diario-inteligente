@@ -106,7 +106,7 @@ export default function UserDashboard({ onSelectAnalysis }: { onSelectAnalysis: 
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
                     <div style={{ fontSize: "1.5rem" }}>{arch.emoji}</div>
                     <div style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>
-                      {new Date(item.created_at).toLocaleDateString()}
+                      <span suppressHydrationWarning>{new Date(item.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
                   <div style={{ fontFamily: "Outfit", fontWeight: 700, fontSize: "1.1rem", marginBottom: "0.2rem" }}>

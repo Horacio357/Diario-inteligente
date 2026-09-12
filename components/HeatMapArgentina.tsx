@@ -1,94 +1,11 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { ComposableMap, Geographies, Geography, ZoomableGroup, Marker } from "react-simple-maps";
 import { ARGENTINA_PROVINCES } from "@/lib/argentina-map-data";
-import { ProvinceMetric, ArchetypeKey } from "@/lib/types";
+import { PersonalityAnalysis, ProvinceMetric } from "@/lib/types";
 import { ARCHETYPE_CONFIG, sentimentToColor } from "@/lib/utils";
 import ProvinceDetailPanel from "@/components/ProvinceDetailPanel";
-
-const geoJsonToAppId: Record<string, string> = {
-  "02": "buenos-aires-ciudad",
-  "06": "buenos-aires",
-  "10": "catamarca",
-  "22": "chaco",
-  "26": "chubut",
-  "14": "cordoba",
-  "18": "corrientes",
-  "30": "entre-rios",
-  "34": "formosa",
-  "38": "jujuy",
-  "42": "la-pampa",
-  "46": "la-rioja",
-  "50": "mendoza",
-  "54": "misiones",
-  "58": "neuquen",
-  "62": "rio-negro",
-  "66": "salta",
-  "70": "san-juan",
-  "74": "san-luis",
-  "78": "santa-cruz",
-  "82": "santa-fe",
-  "86": "santiago-del-estero",
-  "94": "tierra-del-fuego",
-  "90": "tucuman"
-};
-
-const PROVINCE_LABELS: Record<string, string> = {
-  "buenos-aires": "Bs. As.",
-  "buenos-aires-ciudad": "CABA",
-  "catamarca": "Catamarca",
-  "corrientes": "Corrientes",
-  "entre-rios": "E. Ríos",
-  "formosa": "Formosa",
-  "la-pampa": "La Pampa",
-  "la-rioja": "La Rioja",
-  "mendoza": "Mendoza",
-  "misiones": "Misiones",
-  "neuquen": "Neuquén",
-  "rio-negro": "R. Negro",
-  "san-juan": "San Juan",
-  "san-luis": "San Luis",
-  "santa-cruz": "Sta. Cruz",
-  "santa-fe": "Santa Fe",
-  "santiago-del-estero": "Sgo. Estero",
-  "tierra-del-fuego": "T. Fuego",
-  "tucuman": "Tucumán",
-  "chaco": "Chaco",
-  "chubut": "Chubut",
-  "cordoba": "Córdoba",
-  "jujuy": "Jujuy",
-  "salta": "Salta",
-};
-
-/* ── Coordinates optimized for province labels & pings ── */
-const PROVINCE_COORDS: Record<string, [number, number]> = {
-  "buenos-aires-ciudad": [-58.4, -34.6],
-  "buenos-aires": [-60.5, -36.5],
-  "catamarca": [-66.8, -27.2],
-  "chaco": [-60.5, -26.3],
-  "chubut": [-68.5, -44.0],
-  "cordoba": [-64.0, -31.8],
-  "corrientes": [-57.8, -28.8],
-  "entre-rios": [-59.2, -32.2],
-  "formosa": [-60.2, -24.8],
-  "jujuy": [-65.5, -23.3],
-  "la-pampa": [-65.4, -37.2],
-  "la-rioja": [-67.2, -29.8],
-  "mendoza": [-68.5, -34.5],
-  "misiones": [-54.8, -26.8],
-  "neuquen": [-70.2, -38.5],
-  "rio-negro": [-67.5, -40.5],
-  "salta": [-64.5, -24.8],
-  "san-juan": [-68.8, -31.0],
-  "san-luis": [-66.0, -33.8],
-  "santa-cruz": [-70.2, -48.5],
-  "santa-fe": [-61.2, -31.2],
-  "santiago-del-estero": [-63.8, -27.8],
-  "tierra-del-fuego": [-67.8, -54.0],
-  "tucuman": [-65.3, -26.8]
-};
 
 interface HeatMapArgentinaProps {
   provinceData?: Record<string, ProvinceMetric>;
@@ -109,17 +26,17 @@ interface HoveredProvince {
   y: number;
 }
 
-/* ── Color helpers ── */
-function sentimentToNeonColor(sentiment: number): string {
-  if (sentiment > 0.15) return "#00ff66";   // Neon green — favorable
-  if (sentiment < -0.15) return "#ff0055";  // Neon red — desfavorable
-  return "#ffb700";                         // Neon amber — neutro
-}
+function sentimentToHeatColor(sentiment: number, intensity: number): string {
+  // Interpolar entre rojo profundo y verde esmeralda pasando por gris neutro
+  const alpha = 0.35 + intensity * 0.55;
 
-function sentimentToFill(sentiment: number): string {
-  if (sentiment > 0.15) return "rgba(0, 255, 102, 0.15)";
-  if (sentiment < -0.15) return "rgba(255, 0, 85, 0.15)";
-  return "rgba(255, 183, 0, 0.15)";
+  if (sentiment > 0.5) return `rgba(16, 185, 129, ${alpha})`; // verde intenso
+  if (sentiment > 0.25) return `rgba(52, 211, 153, ${alpha})`; // verde suave
+  if (sentiment > 0.05) return `rgba(110, 231, 183, ${alpha})`; // verde muy suave
+  if (sentiment > -0.05) return `rgba(234, 179, 8, ${alpha})`; // amarillo/neutro
+  if (sentiment > -0.25) return `rgba(251, 146, 60, ${alpha})`; // naranja
+  if (sentiment > -0.5) return `rgba(239, 68, 68, ${alpha})`; // rojo suave
+  return `rgba(220, 38, 38, ${alpha})`; // rojo intenso
 }
 
 function sentimentToStroke(sentiment: number): string {
@@ -128,25 +45,32 @@ function sentimentToStroke(sentiment: number): string {
   return "rgba(239, 68, 68, 0.6)";
 }
 
-const NEON = "#39ff14";
+function hexToRgba(hex: string, alpha: number) {
+  const r = parseInt(hex.slice(1, 3), 16) || 0;
+  const g = parseInt(hex.slice(3, 5), 16) || 0;
+  const b = parseInt(hex.slice(5, 7), 16) || 0;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
-const HeatMapArgentina = React.memo(function HeatMapArgentinaComponent({
-  provinceData,
-  personalityName,
-  archetype = "hero",
-  mode = "sentiment",
-  topic,
-  nationalSummary,
-  category
-}: HeatMapArgentinaProps) {
+export default function HeatMapArgentina({ provinceData, personalityName, archetype = "hero", mode = "sentiment", topic, nationalSummary, category }: HeatMapArgentinaProps) {
   const [hovered, setHovered] = useState<HoveredProvince | null>(null);
   const [mounted, setMounted] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState<{ id: string; name: string } | null>(null);
-  const [position, setPosition] = useState({ coordinates: [-64, -38.5] as [number, number], zoom: 1 });
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const getMetric = (id: string): ProvinceMetric | null => provinceData?.[id] || null;
+  const getMetric = (id: string): ProvinceMetric | null => {
+    if (!provinceData) return null;
+    if (provinceData[id]) return provinceData[id];
+    const normId = id.toLowerCase().replace(/[^a-z0-9]/g, "");
+    for (const [key, val] of Object.entries(provinceData)) {
+      const normKey = key.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+      if (normKey === normId) return val;
+    }
+    return null;
+  };
 
   const sentimentLabel = (s: number) => {
     if (s > 0.5) return "Muy favorable";
@@ -156,373 +80,239 @@ const HeatMapArgentina = React.memo(function HeatMapArgentinaComponent({
     return "Muy desfavorable";
   };
 
-  const provinceCapitals = useMemo(() => {
-    const map: Record<string, string> = {};
-    ARGENTINA_PROVINCES.forEach(p => { map[p.id] = p.capital; });
-    return map;
-  }, []);
-
   const nationalAvg = useMemo(() => {
     if (!provinceData) return 0;
     const values = Object.values(provinceData).map(p => p.sentiment);
-    return values.reduce((a, b) => a + b, 0) / values.length;
+    return values.reduce((a, b) => a + b, 0) / (values.length || 1);
   }, [provinceData]);
 
   return (
     <div style={{ position: "relative", width: "100%" }}>
       {/* Header */}
       <div style={{ marginBottom: "1rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/img/globo-terraqueo-con-mapas-de-continentes.png" alt="Globe Icon" style={{ width: "18px", height: "18px", objectFit: "contain", opacity: 0.8 }} />
-          <div className="section-label" style={{ margin: 0, color: NEON, textShadow: `0 0 8px ${NEON}` }}>Mapa de Calor Territorial</div>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.3rem" }}>
+          <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#00e676", boxShadow: "0 0 8px #00e676" }} />
+          <span style={{ fontFamily: "Outfit, sans-serif", fontSize: "0.68rem", fontWeight: 800, color: "var(--accent-primary)", textTransform: "uppercase", letterSpacing: "0.15em" }}>
+            Monitor de Humor Social Territorial
+          </span>
         </div>
-        <h3 style={{ fontFamily: "Outfit", fontSize: "1rem", color: NEON, textShadow: `0 0 6px rgba(57, 255, 20, 0.4)` }}>
-          {personalityName ? `Percepción de ${personalityName}` : "Humor Social · Argentina"}
+        <h3 style={{ fontFamily: "Merriweather, Georgia, serif", fontSize: "1.15rem", color: "var(--heading-color)", fontWeight: 800, margin: "0 0 0.4rem" }}>
+          {topic || personalityName ? `Percepción Territorial de "${topic || personalityName}"` : "Humor Social Nacional · Argentina"}
         </h3>
-        <p style={{ fontSize: "0.78rem", color: "rgba(57, 255, 20, 0.5)", marginTop: "0.2rem" }}>
-          Arrastra para desplazar · Rueda para zoom · <span style={{ color: NEON }}>Click para análisis detallado IA</span>
+        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0, fontFamily: "Merriweather, Georgia, serif", lineHeight: 1.5 }}>
+          Este mapa mide la intensidad del debate público y el sentimiento (favorable vs. crítico) provincia por provincia en tiempo real.
         </p>
       </div>
 
-      {/* ══════════════════════════════════════════════════
-          SVG MAP — Threatbutt OSINT radar style
-         ══════════════════════════════════════════════════ */}
-      <div style={{
-        position: "relative",
-        background: "#02040a",
-        borderRadius: "var(--radius-md)",
-        border: `1px solid rgba(57, 255, 20, 0.25)`,
-        overflow: "hidden",
-        boxShadow: `0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(57, 255, 20, 0.05)`,
-      }}>
+      {/* SVG Mapa */}
+      <div style={{ position: "relative" }}>
+        <svg
+          viewBox="120 88 260 560"
+          style={{ width: "100%", height: "auto", maxHeight: "480px" }}
+        >
+          <defs>
+            <filter id="glow-province">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
 
-        {/* Scanlines layer for CRT retro style */}
-        <div style={{
-          position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none",
-          background: "repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.15) 1px, rgba(0,0,0,0.15) 3px)",
-        }} />
+          {ARGENTINA_PROVINCES.map(province => {
+            const metric = getMetric(province.id);
+            const isHovered = hovered?.id === province.id;
 
-        {/* Flashing grid points for radar background */}
-        <div style={{
-          position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
-          opacity: 0.15,
-          backgroundImage: `radial-gradient(${NEON} 1px, transparent 1px)`,
-          backgroundSize: "20px 20px",
-        }} />
+            const fillColor = metric
+              ? sentimentToHeatColor(metric.sentiment, metric.intensity || 0.7)
+              : "rgba(255, 255, 255, 0.05)";
+            const strokeColor = metric
+              ? sentimentToStroke(metric.sentiment)
+              : "rgba(255, 255, 255, 0.12)";
 
-        {/* Floating Zoom Controls */}
-        <div style={{
-          position: "absolute",
-          top: "15px",
-          right: "15px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.4rem",
-          zIndex: 10,
-        }}>
-          <button 
-            onClick={() => setPosition(pos => ({ ...pos, zoom: Math.min(pos.zoom + 0.5, 8) }))}
-            style={{
-              width: "32px", height: "32px", borderRadius: "8px",
-              background: "#02040a", border: `1px solid ${NEON}`,
-              color: NEON, cursor: "pointer", display: "flex",
-              alignItems: "center", justifyContent: "center", fontWeight: "bold",
-              boxShadow: `0 0 10px rgba(57, 255, 20, 0.2)`, transition: "all 0.2s"
-            }}
-            title="Acercar"
-          >
-            +
-          </button>
-          <button 
-            onClick={() => setPosition(pos => ({ ...pos, zoom: Math.max(pos.zoom - 0.5, 0.8) }))}
-            style={{
-              width: "32px", height: "32px", borderRadius: "8px",
-              background: "#02040a", border: `1px solid ${NEON}`,
-              color: NEON, cursor: "pointer", display: "flex",
-              alignItems: "center", justifyContent: "center", fontWeight: "bold",
-              boxShadow: `0 0 10px rgba(57, 255, 20, 0.2)`, transition: "all 0.2s"
-            }}
-            title="Alejar"
-          >
-            -
-          </button>
-          <button 
-            onClick={() => setPosition({ coordinates: [-64, -38.5], zoom: 1 })}
-            style={{
-              width: "32px", height: "32px", borderRadius: "8px",
-              background: "#02040a", border: `1px solid ${NEON}`,
-              color: NEON, cursor: "pointer", display: "flex",
-              alignItems: "center", justifyContent: "center",
-              boxShadow: `0 0 10px rgba(57, 255, 20, 0.2)`, transition: "all 0.2s"
-            }}
-            title="Restablecer vista"
-          >
-            🎯
-          </button>
-        </div>
-
-        {/* ── Client Side Gating to prevent SSR Hydration Mismatches ── */}
-        {mounted ? (
-          <ComposableMap
-            projection="geoMercator"
-            projectionConfig={{
-              scale: 1400
-            }}
-            width={800}
-            height={900}
-            style={{ width: "100%", height: "auto", display: "block" }}
-          >
-            {/* Neon SVG filter */}
-            <defs>
-              <filter id="neon-glow-map">
-                <feGaussianBlur stdDeviation="1.5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-              <filter id="radar-glow">
-                <feGaussianBlur stdDeviation="3" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            <ZoomableGroup
-              center={position.coordinates}
-              zoom={position.zoom}
-              minZoom={0.5}
-              maxZoom={8}
-              onMoveEnd={(pos) => setPosition(pos)}
-              onMoveStart={() => setHovered(null)}
-            >
-              {/* Geographies (Base map outlines) */}
-              <Geographies geography="/argentina-provinces.json">
-                {({ geographies }) =>
-                  geographies.map(geo => {
-                    const geoId = geo.properties.id;
-                    const appId = geoJsonToAppId[geoId];
-                    if (!appId) return null;
-
-                    const metric = getMetric(appId);
-                    const isHovered = hovered?.id === appId;
-
-                    let fill = "rgba(0, 0, 0, 0.4)";
-                    let stroke = "rgba(57, 255, 20, 0.25)"; // Translucent green borders
-                    let strokeWidth = 0.5;
-
+            return (
+              <g key={province.id}>
+                <path
+                  d={province.path}
+                  fill={fillColor}
+                  stroke={isHovered ? "var(--accent-primary)" : strokeColor}
+                  strokeWidth={isHovered ? 2.5 : 0.8}
+                  style={{
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    filter: isHovered ? "url(#glow-province)" : "none",
+                    transform: isHovered ? "scale(1.02)" : "scale(1)",
+                    transformOrigin: `${province.cx}px ${province.cy}px`,
+                  }}
+                  onMouseEnter={e => {
                     if (metric) {
-                      fill = sentimentToFill(metric.sentiment);
-                      stroke = sentimentToNeonColor(metric.sentiment) + "80"; // 50% opacity
+                      const rect = (e.target as SVGPathElement).getBoundingClientRect();
+                      setHovered({
+                        id: province.id,
+                        name: province.name,
+                        capital: province.capital,
+                        metric,
+                        x: rect.left + rect.width / 2,
+                        y: rect.top,
+                      });
                     }
-
-                    if (isHovered && metric) {
-                      fill = sentimentToFill(metric.sentiment).replace("0.15", "0.35");
-                      stroke = sentimentToNeonColor(metric.sentiment);
-                      strokeWidth = 1.8;
+                  }}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => {
+                    if (topic || personalityName) {
+                      setSelectedProvince({ id: province.id, name: province.name });
                     }
+                  }}
+                />
+                {/* Labels de TODAS las provincias */}
+                {(() => {
+                  // Abreviaciones para nombres largos que no caben en el polígono
+                  const ABBR: Record<string, string[]> = {
+                    "buenos-aires": ["Buenos", "Aires"],
+                    "buenos-aires-ciudad": ["CABA"],
+                    "catamarca": ["Cata-", "marca"],
+                    "corrientes": ["Corr."],
+                    "entre-rios": ["E. Ríos"],
+                    "formosa": ["Formosa"],
+                    "la-pampa": ["L. Pampa"],
+                    "la-rioja": ["La Rioja"],
+                    "mendoza": ["Mendoza"],
+                    "misiones": ["Mis."],
+                    "neuquen": ["Neuquén"],
+                    "rio-negro": ["R. Negro"],
+                    "san-juan": ["S. Juan"],
+                    "san-luis": ["S. Luis"],
+                    "santa-cruz": ["Sta Cruz"],
+                    "santa-fe": ["Sta. Fe"],
+                    "santiago-del-estero": ["Stgo.", "Estero"],
+                    "tierra-del-fuego": ["T. Fuego"],
+                    "tucuman": ["Tucumán"],
+                    "chaco": ["Chaco"],
+                    "chubut": ["Chubut"],
+                    "cordoba": ["Córdoba"],
+                    "jujuy": ["Jujuy"],
+                    "salta": ["Salta"],
+                  };
+                  const lines = ABBR[province.id] || [province.name];
+                  const fontSize = lines[0].length > 7 ? 4 : 5;
+                  const lineHeight = fontSize + 1.5;
+                  const totalH = lines.length * lineHeight;
+                  return (
+                    <text
+                      x={province.cx}
+                      y={province.cy - totalH / 2 + lineHeight / 2}
+                      textAnchor="middle"
+                      fill={isHovered ? "var(--accent-primary)" : "var(--heading-color)"}
+                      fontSize={fontSize}
+                      fontFamily="Outfit, sans-serif"
+                      fontWeight={isHovered ? 900 : 700}
+                      style={{ pointerEvents: "none", userSelect: "none" }}
+                    >
+                      {lines.map((line, i) => (
+                        <tspan key={i} x={province.cx} dy={i === 0 ? 0 : lineHeight}>
+                          {line}
+                        </tspan>
+                      ))}
+                    </text>
+                  );
+                })()}
+              </g>
+            );
+          })}
+        </svg>
 
-                    return (
-                      <Geography
-                        key={geo.rsmKey}
-                        geography={geo}
-                        fill={fill}
-                        stroke={stroke}
-                        strokeWidth={strokeWidth}
-                        style={{
-                          default: { outline: "none", transition: "all 0.2s" },
-                          hover: {
-                            outline: "none",
-                            fill: metric ? sentimentToFill(metric.sentiment).replace("0.15", "0.3") : "rgba(57, 255, 20, 0.08)",
-                            stroke: metric ? sentimentToNeonColor(metric.sentiment) : NEON,
-                            strokeWidth: 1.5,
-                            cursor: "pointer"
-                          },
-                          pressed: { outline: "none" }
-                        }}
-                        onMouseEnter={e => {
-                          if (metric) {
-                            const rect = (e.target as SVGPathElement).getBoundingClientRect();
-                            setHovered({
-                              id: appId,
-                              name: geo.properties.nombre,
-                              capital: provinceCapitals[appId] || "",
-                              metric,
-                              x: rect.left + rect.width / 2,
-                              y: rect.top,
-                            });
-                          }
-                        }}
-                        onMouseLeave={() => setHovered(null)}
-                        onClick={() => {
-                          if (topic || personalityName) {
-                            setSelectedProvince({ id: appId, name: geo.properties.nombre });
-                          }
-                        }}
-                      />
-                    );
-                  })
-                }
-              </Geographies>
+        {/* Tooltip flotante con alto contraste en todos los temas */}
+        {mounted && hovered && createPortal(
+          <div style={{
+            position: "fixed",
+            left: hovered.x,
+            top: hovered.y - 12,
+            transform: "translate(-50%, -100%)",
+            background: "var(--card-bg)",
+            border: `2px solid ${sentimentToColor(hovered.metric.sentiment)}`,
+            borderRadius: "12px",
+            padding: "0.85rem 1.1rem",
+            zIndex: 999,
+            minWidth: "220px",
+            boxShadow: "0 16px 40px rgba(0,0,0,0.3)",
+            animation: "fadeInUp 0.15s ease both",
+            pointerEvents: "none",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.2rem" }}>
+              <span style={{ fontFamily: "Outfit, sans-serif", fontWeight: 800, fontSize: "1.05rem", color: "var(--heading-color)" }}>
+                {hovered.name}
+              </span>
+              {hovered.metric.dominantArchetype && (
+                <span style={{ fontSize: "0.85rem", background: "rgba(0,0,0,0.05)", padding: "2px 6px", borderRadius: "6px" }}>
+                  {ARCHETYPE_CONFIG[hovered.metric.dominantArchetype]?.emoji}
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.65rem", fontFamily: "Inter, sans-serif" }}>
+              Capital: {hovered.capital}
+            </div>
 
-              {/* Markers: Animated Radar Pings and Labels */}
-              {Object.entries(PROVINCE_COORDS).map(([appId, coords]) => {
-                const metric = getMetric(appId);
-                const label = PROVINCE_LABELS[appId] || appId;
-                const isHovered = hovered?.id === appId;
+            {/* Sentimiento */}
+            <div style={{ marginBottom: "0.5rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>Sentimiento</span>
+                <span style={{
+                  fontSize: "0.82rem",
+                  fontWeight: 800,
+                  color: sentimentToColor(hovered.metric.sentiment),
+                  fontFamily: "Outfit, sans-serif"
+                }}>
+                  {sentimentLabel(hovered.metric.sentiment)}
+                </span>
+              </div>
+              <div style={{ width: "100%", height: "6px", background: "rgba(0,0,0,0.1)", borderRadius: "100px", overflow: "hidden" }}>
+                <div
+                  style={{
+                    height: "100%",
+                    width: `${((hovered.metric.sentiment + 1) / 2) * 100}%`,
+                    background: sentimentToColor(hovered.metric.sentiment),
+                    borderRadius: "100px"
+                  }}
+                />
+              </div>
+            </div>
 
-                // Default green scanner dot if no metric, colored ping if there is data
-                const color = metric ? sentimentToNeonColor(metric.sentiment) : NEON;
-                const hasData = !!metric;
+            {/* Intensidad */}
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>Intensidad de Debate</span>
+                <span style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--heading-color)", fontFamily: "Outfit, sans-serif" }}>
+                  {Math.round(hovered.metric.intensity * 100)}%
+                </span>
+              </div>
+              <div style={{ width: "100%", height: "6px", background: "rgba(0,0,0,0.1)", borderRadius: "100px", overflow: "hidden" }}>
+                <div
+                  style={{ height: "100%", width: `${hovered.metric.intensity * 100}%`, background: "var(--accent-primary)", borderRadius: "100px" }}
+                />
+              </div>
+            </div>
 
-                return (
-                  <Marker key={appId} coordinates={coords}>
-                    {/* Outer animated radar pulse */}
-                    {hasData && (
-                      <circle r={2} fill="none" stroke={color} strokeWidth={1} filter="url(#radar-glow)">
-                        <animate attributeName="r" from={2} to={18} dur="2.5s" repeatCount="indefinite" />
-                        <animate attributeName="opacity" from={0.8} to={0} dur="2.5s" repeatCount="indefinite" />
-                      </circle>
-                    )}
-
-                    {/* Core solid scanner point */}
-                    <circle
-                      r={hasData ? 3 : 1.5}
-                      fill={color}
-                      opacity={hasData ? 0.9 : 0.4}
-                      style={{ transition: "all 0.2s" }}
-                    />
-
-                    {/* Text label underneath the radar ping */}
-                    {appId !== "buenos-aires-ciudad" && (
-                      <text
-                        y={hasData ? 12 : 8}
-                        textAnchor="middle"
-                        style={{
-                          pointerEvents: "none",
-                          fontFamily: "Outfit, sans-serif",
-                          fontWeight: "bold",
-                          fontSize: "7.5px",
-                          fill: isHovered ? "#ffffff" : (hasData ? color : "rgba(57, 255, 20, 0.45)"),
-                          textTransform: "uppercase",
-                          letterSpacing: "0.5px",
-                          textShadow: isHovered 
-                            ? "0 0 6px #fff" 
-                            : `0 0 3px ${hasData ? color : "rgba(57, 255, 20, 0.2)"}`,
-                          transition: "all 0.2s"
-                        }}
-                      >
-                        {label}
-                      </text>
-                    )}
-                  </Marker>
-                );
-              })}
-            </ZoomableGroup>
-          </ComposableMap>
-        ) : (
-          <div style={{ width: "100%", aspectRatio: "800/900", background: "#02040a" }} />
+            {hovered.metric.dominantArchetype && (
+              <div style={{ marginTop: "0.6rem", paddingTop: "0.45rem", borderTop: "1px dashed var(--glass-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontFamily: "Inter, sans-serif" }}>Arquetipo:</span>
+                <span style={{ fontSize: "0.78rem", color: ARCHETYPE_CONFIG[hovered.metric.dominantArchetype]?.color, fontWeight: 800, fontFamily: "Outfit, sans-serif" }}>
+                  {ARCHETYPE_CONFIG[hovered.metric.dominantArchetype]?.label}
+                </span>
+              </div>
+            )}
+          </div>,
+          document.body
         )}
       </div>
 
-      {/* Tooltip flotante via portal */}
-      {mounted && hovered && createPortal(
-        <div style={{
-          position: "fixed",
-          left: hovered.x,
-          top: hovered.y - 8,
-          transform: "translate(-50%, -100%)",
-          background: "rgba(2, 4, 10, 0.95)",
-          border: `1px solid ${sentimentToNeonColor(hovered.metric.sentiment)}`,
-          borderRadius: "8px",
-          padding: "0.75rem 1rem",
-          zIndex: 9999,
-          backdropFilter: "blur(20px)",
-          minWidth: "200px",
-          boxShadow: `0 0 20px ${sentimentToNeonColor(hovered.metric.sentiment)}30`,
-          animation: "fadeInUp 0.15s ease both",
-          pointerEvents: "none",
-          fontFamily: "Inter, sans-serif",
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <span style={{ fontFamily: "Outfit, sans-serif", fontWeight: 700, fontSize: "0.95rem", color: NEON }}>{hovered.name}</span>
-            {hovered.metric.dominantArchetype && (
-              <span style={{ fontSize: "0.75rem" }}>
-                {ARCHETYPE_CONFIG[hovered.metric.dominantArchetype]?.emoji}
-              </span>
-            )}
-          </div>
-          <div style={{ fontSize: "0.7rem", color: "rgba(57, 255, 20, 0.5)", marginBottom: "0.6rem" }}>{hovered.capital}</div>
-
-          {/* Sentiment */}
-          <div style={{ marginBottom: "0.4rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
-              <span style={{ fontSize: "0.72rem", color: "rgba(57, 255, 20, 0.5)" }}>Sentimiento</span>
-              <span style={{
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                color: sentimentToNeonColor(hovered.metric.sentiment),
-              }}>
-                {sentimentLabel(hovered.metric.sentiment)}
-              </span>
-            </div>
-            <div style={{ width: "100%", height: "4px", background: "rgba(57, 255, 20, 0.1)", borderRadius: "2px" }}>
-              <div style={{
-                width: `${((hovered.metric.sentiment + 1) / 2) * 100}%`,
-                height: "100%",
-                borderRadius: "2px",
-                background: `linear-gradient(90deg, #ff0055, #ffb700, #00ff66)`,
-                boxShadow: `0 0 6px ${sentimentToNeonColor(hovered.metric.sentiment)}`,
-              }} />
-            </div>
-          </div>
-
-          {/* Intensidad */}
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.25rem" }}>
-              <span style={{ fontSize: "0.72rem", color: "rgba(57, 255, 20, 0.5)" }}>Intensidad</span>
-              <span style={{ fontSize: "0.8rem", fontWeight: 600, color: NEON }}>
-                {Math.round(hovered.metric.intensity * 100)}%
-              </span>
-            </div>
-            <div style={{ width: "100%", height: "4px", background: "rgba(57, 255, 20, 0.1)", borderRadius: "2px" }}>
-              <div style={{
-                width: `${hovered.metric.intensity * 100}%`,
-                height: "100%",
-                borderRadius: "2px",
-                background: NEON,
-                boxShadow: `0 0 6px ${NEON}`,
-              }} />
-            </div>
-          </div>
-
-          {hovered.metric.dominantArchetype && (
-            <div style={{ marginTop: "0.5rem", paddingTop: "0.5rem", borderTop: "1px solid rgba(57, 255, 20, 0.2)" }}>
-              <span style={{ fontSize: "0.72rem", color: "rgba(57, 255, 20, 0.5)" }}>Arquetipo: </span>
-              <span style={{ fontSize: "0.78rem", color: ARCHETYPE_CONFIG[hovered.metric.dominantArchetype]?.color, fontWeight: 600 }}>
-                {ARCHETYPE_CONFIG[hovered.metric.dominantArchetype]?.label}
-              </span>
-            </div>
-          )}
-        </div>,
-        document.body
-      )}
-
       {/* Leyenda del mapa */}
       <div style={{ marginTop: "1rem" }}>
-        <div style={{
-          width: "100%", height: "4px",
-          background: "linear-gradient(to right, #ff0055 0%, #ffb700 50%, #00ff66 100%)",
-          borderRadius: "2px", marginBottom: "0.5rem",
-          boxShadow: "0 0 8px rgba(57, 255, 20, 0.2)",
-        }} />
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ fontSize: "0.65rem", color: "#ff0055", fontFamily: "Inter, sans-serif" }}>▮ Desfavorable</span>
-          <span style={{ fontSize: "0.65rem", color: "#ffb700", fontFamily: "Inter, sans-serif" }}>▮ Neutro</span>
-          <span style={{ fontSize: "0.65rem", color: "#00ff66", fontFamily: "Inter, sans-serif" }}>▮ Favorable</span>
+        <div style={{ width: "100%", height: "6px", background: "linear-gradient(to right, #ef4444, #eab308, #10b981)", borderRadius: "3px", marginBottom: "0.5rem" }} />
+        <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "Inter, sans-serif" }}>
+          <span style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 600 }}>🔴 Muy desfavorable</span>
+          <span style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 600 }}>🟡 Neutro / Moderado</span>
+          <span style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: 600 }}>🟢 Muy favorable</span>
         </div>
       </div>
 
@@ -530,21 +320,63 @@ const HeatMapArgentina = React.memo(function HeatMapArgentinaComponent({
       {provinceData && (
         <div style={{
           marginTop: "0.75rem",
-          padding: "0.75rem",
-          background: "rgba(0,0,0,0.6)",
-          borderRadius: "var(--radius-md)",
-          border: "1px solid rgba(57, 255, 20, 0.2)",
+          padding: "0.75rem 1rem",
+          background: "var(--card-bg)",
+          borderRadius: "12px",
+          border: "1px solid var(--glass-border)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          fontFamily: "Inter, sans-serif",
         }}>
-          <span style={{ fontSize: "0.78rem", color: "rgba(57, 255, 20, 0.5)" }}>Aprobación Nacional Promedio</span>
-          <span style={{ fontSize: "1rem", fontWeight: 700, color: sentimentToNeonColor(nationalAvg), textShadow: `0 0 8px ${sentimentToNeonColor(nationalAvg)}` }}>
+          <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontFamily: "Inter, sans-serif" }}>Aprobación Nacional Promedio</span>
+          <span style={{ fontSize: "0.95rem", fontWeight: 800, fontFamily: "Outfit, sans-serif", color: sentimentToColor(nationalAvg) }}>
             {sentimentLabel(nationalAvg)} ({Math.round(((nationalAvg + 1) / 2) * 100)}%)
           </span>
         </div>
       )}
+
+      {/* CTA para medir cualquier concepto con IA */}
+      <div style={{
+        marginTop: "1rem",
+        padding: "0.85rem 1rem",
+        background: "rgba(0, 212, 255, 0.06)",
+        border: "1px solid var(--accent-primary)",
+        borderRadius: "12px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "0.75rem",
+        flexWrap: "wrap"
+      }}>
+        <div style={{ flex: 1, minWidth: "220px" }}>
+          <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "var(--heading-color)", fontFamily: "Outfit, sans-serif" }}>
+            💡 ¿Querés medir la percepción de otro tema o personalidad?
+          </div>
+          <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", fontFamily: "Inter, sans-serif", marginTop: "0.1rem" }}>
+            Ingresá cualquier concepto o figura en nuestro Analizador IA para proyectarlo en el mapa.
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            const el = document.getElementById("analizador-ia");
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }}
+          style={{
+            background: "var(--accent-primary)",
+            color: "#ffffff",
+            border: "none",
+            borderRadius: "8px",
+            padding: "0.45rem 0.9rem",
+            fontSize: "0.75rem",
+            fontFamily: "Outfit, sans-serif",
+            fontWeight: 800,
+            cursor: "pointer",
+            whiteSpace: "nowrap"
+          }}
+        >
+          🔍 Medir cualquier concepto con IA ↓
+        </button>
+      </div>
 
       {/* Panel de detalle provincial */}
       <ProvinceDetailPanel
@@ -559,6 +391,4 @@ const HeatMapArgentina = React.memo(function HeatMapArgentinaComponent({
       />
     </div>
   );
-});
-
-export default HeatMapArgentina;
+}

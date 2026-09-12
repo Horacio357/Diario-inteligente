@@ -127,7 +127,7 @@ function MiniSearch({
           display: "flex",
           gap: "0.5rem",
           alignItems: "center",
-          background: "rgba(13,21,40,0.9)",
+          background: "var(--primary-900)",
           border: `1px solid ${color}25`,
           borderRadius: "var(--radius-md)",
           padding: "0.6rem 0.875rem",
@@ -193,7 +193,7 @@ function MiniSearch({
             top: "calc(100% + 4px)",
             left: 0,
             right: 0,
-            background: "rgba(10,14,26,0.98)",
+            background: "var(--card-bg)",
             border: "1px solid var(--glass-border)",
             borderRadius: "var(--radius-md)",
             zIndex: 50,
@@ -599,28 +599,29 @@ export default function PersonalityComparator() {
           <div
             style={{
               display: "flex",
-              gap: "0.25rem",
-              background: "rgba(255,255,255,0.03)",
+              gap: "0.4rem",
+              background: "var(--card-bg)",
+              border: "1px solid var(--glass-border)",
               borderRadius: "var(--radius-md)",
-              padding: "0.25rem",
+              padding: "0.3rem",
               marginBottom: "1.25rem",
             }}
           >
             {TABS.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => setActiveTab(tab.id as any)}
                 style={{
                   flex: 1,
-                  padding: "0.5rem",
-                  background: activeTab === tab.id ? "rgba(0,212,255,0.1)" : "transparent",
-                  border: `1px solid ${activeTab === tab.id ? "rgba(0,212,255,0.25)" : "transparent"}`,
+                  padding: "0.55rem",
+                  background: activeTab === tab.id ? "var(--glass-hover)" : "transparent",
+                  border: `1px solid ${activeTab === tab.id ? "var(--accent-primary)" : "transparent"}`,
                   borderRadius: "var(--radius-sm)",
-                  color: activeTab === tab.id ? "var(--accent-primary)" : "var(--text-muted)",
+                  color: activeTab === tab.id ? "var(--accent-primary)" : "var(--text-secondary)",
                   cursor: "pointer",
-                  fontSize: "0.78rem",
-                  fontFamily: "Outfit",
-                  fontWeight: activeTab === tab.id ? 700 : 400,
+                  fontSize: "0.82rem",
+                  fontFamily: "Outfit, sans-serif",
+                  fontWeight: activeTab === tab.id ? 800 : 600,
                   transition: "all 0.2s",
                 }}
               >

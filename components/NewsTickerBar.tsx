@@ -50,9 +50,9 @@ export default function NewsTickerBar() {
   return (
     <div
       style={{
-        background: "rgba(0, 212, 255, 0.05)",
-        borderTop: "1px solid rgba(0, 212, 255, 0.1)",
-        borderBottom: "1px solid rgba(0, 212, 255, 0.1)",
+        background: "var(--ticker-bg)",
+        borderTop: "1px solid var(--glass-border)",
+        borderBottom: "1px solid var(--glass-border)",
         padding: "0.55rem 0",
         overflow: "hidden",
         position: "relative",
@@ -63,15 +63,15 @@ export default function NewsTickerBar() {
     >
       {/* Gradientes laterales */}
       <div style={{ position:"absolute", left:0, top:0, bottom:0, width:"100px",
-        background:"linear-gradient(90deg, var(--primary-900), transparent)", zIndex:10, pointerEvents:"none" }} />
+        background:"linear-gradient(90deg, var(--ticker-bg), transparent)", zIndex:10, pointerEvents:"none" }} />
       <div style={{ position:"absolute", right:0, top:0, bottom:0, width:"100px",
-        background:"linear-gradient(270deg, var(--primary-900), transparent)", zIndex:10, pointerEvents:"none" }} />
+        background:"linear-gradient(270deg, var(--ticker-bg), transparent)", zIndex:10, pointerEvents:"none" }} />
 
       {/* Badge LIVE */}
       <div style={{
         position:"absolute", left:"1rem", top:"50%", transform:"translateY(-50%)",
         display:"flex", alignItems:"center", gap:"0.4rem",
-        zIndex:20, background:"var(--primary-900)", paddingRight:"0.75rem",
+        zIndex:20, background:"var(--ticker-bg)", paddingRight:"0.75rem",
       }}>
         <span className="status-dot status-live" />
         <Rss size={11} color="var(--accent-primary)" />

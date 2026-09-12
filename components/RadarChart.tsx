@@ -68,7 +68,7 @@ const CustomTooltip = ({
     return (
       <div
         style={{
-          background: "rgba(10, 14, 26, 0.97)",
+          background: "var(--card-bg)",
           border: "1px solid var(--glass-border)",
           borderRadius: "var(--radius-md)",
           padding: "0.75rem 1rem",
@@ -79,7 +79,7 @@ const CustomTooltip = ({
       >
         <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.4rem" }}>
           <span style={{ fontSize: "1rem" }}>{desc?.icon}</span>
-          <p style={{ color: "var(--text-secondary)", fontSize: "0.8rem", fontWeight: 600 }}>{subject}</p>
+          <p style={{ color: "var(--heading-color)", fontSize: "0.8rem", fontWeight: 600 }}>{subject}</p>
         </div>
         <p
           style={{
@@ -266,17 +266,17 @@ export default function RadarChart({
         />
         <ResponsiveContainer width="100%" height="100%">
           <RechartsRadar data={mergedData} cx="50%" cy="50%" outerRadius="72%">
-            <PolarGrid stroke="rgba(0,212,255,0.1)" strokeWidth={1} />
+            <PolarGrid stroke="var(--glass-border)" strokeWidth={1} />
             <PolarAngleAxis
               dataKey="subject"
-              tick={{ fill: "var(--text-secondary)", fontSize: 10, fontFamily: "Inter" }}
+              tick={{ fill: "var(--heading-color)", fontSize: 10, fontFamily: "Inter, sans-serif" }}
             />
             <PolarRadiusAxis
               angle={90}
               domain={[0, 100]}
               tick={{ fill: "var(--text-muted)", fontSize: 9 }}
               tickCount={4}
-              stroke="rgba(0,212,255,0.05)"
+              stroke="var(--glass-border)"
             />
             {/* Figura principal */}
             <Radar

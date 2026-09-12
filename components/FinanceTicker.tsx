@@ -65,16 +65,27 @@ export default function FinanceTicker() {
   }, []);
 
   return (
-    <div className="w-full bg-slate-950 border-b border-slate-800 text-xs sm:text-sm font-mono flex overflow-hidden whitespace-nowrap h-8 items-center text-slate-300">
+    <div style={{
+      width: "100%",
+      background: "var(--ticker-bg)",
+      borderBottom: "1px solid var(--glass-border)",
+      fontSize: "0.78rem",
+      fontFamily: "monospace",
+      display: "flex",
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+      height: "32px",
+      alignItems: "center",
+      color: "var(--ticker-text)"
+    }}>
       <div className="news-ticker-content" style={{ paddingLeft: "100px", display: "flex", gap: "3rem" }}>
         {[...items, ...items, ...items].map((item, i) => (
-          <div key={i} className="flex items-center space-x-2">
-            <span className="font-bold text-slate-400">{item.symbol}</span>
-            <span>{item.value}</span>
-            <span className={
-              item.trend === 'up' ? 'text-emerald-400' :
-              item.trend === 'down' ? 'text-red-400' : 'text-slate-400'
-            }>
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span style={{ fontWeight: 700, color: "var(--text-muted)" }}>{item.symbol}</span>
+            <span style={{ color: "var(--ticker-text)" }}>{item.value}</span>
+            <span style={{
+              color: item.trend === 'up' ? '#00e676' : item.trend === 'down' ? '#ff1744' : 'var(--text-muted)'
+            }}>
               {item.change}
               {item.trend === 'up' ? ' ▲' : item.trend === 'down' ? ' ▼' : ' ▬'}
             </span>

@@ -216,7 +216,7 @@ export default function NarrativasEmergentes() {
         borderTop: "1px solid rgba(255,255,255,0.05)",
         display: "flex", justifyContent: "space-between", alignItems: "center",
       }}>
-        <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>
+        <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }} suppressHydrationWarning>
           {updatedAt
             ? `Actualizado ${new Date(updatedAt).toLocaleTimeString("es-AR", { hour:"2-digit", minute:"2-digit" })}`
             : "Datos en tiempo real · NewsData.io"}

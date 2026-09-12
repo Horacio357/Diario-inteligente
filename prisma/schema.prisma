@@ -4,10 +4,89 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
 }
 
 datasource db {
   provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  passToken String
+  role      String   @default("REDACTOR") // ADMIN | EDITOR | REDACTOR
+  bio       String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  articles  Article[]
+}
+
+model Article {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  summary     String
+  content     String
+  imageUrl    String?
+  videoUrl    String?
+  category    String   @default("General")
+  author      String?  @default("Redacción Talos")
+  authorId    String?
+  user        User?    @relation(fields: [authorId], references: [id])
+  published   Boolean  @default(true)
+  isSponsored Boolean  @default(false)
+  sponsorName String?
+  sponsorLogo String?
+  sentiment   Float?
+  archetype   String?
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Advertisement {
+  id        String   @id @default(uuid())
+  section   String   @default("global") // global | politica | deportes | tecnologia | ciencia | locales
+  position  String   @default("footer") // footer | mobile_anchor | inline_article | header_leaderboard
+  title     String?
+  imageUrl  String?
+  linkUrl   String?
+  code      String?  // HTML/embed code for rich ads
+  active    Boolean  @default(true)
+  priority  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NewspaperSpace {
+  id          String   @id @default(uuid())
+  spaceKey    String   @unique // radio_player | guest_column | sponsored_mid | weather_ticker | hero_highlight
+  name        String
+  description String?
+  active      Boolean  @default(true)
+  contentJson String?  // JSON config for custom text, author, link, etc.
+  updatedAt   DateTime @updatedAt
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(uuid())
+  eventType String   // view_article | ai_query | category_visit | search_term
+  targetId  String?  // article slug or ID
+  query     String?  // search string or AI concept
+  category  String?  // section name
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+
+model SiteSettings {
+  id        String   @id @default("main")
+  adminPass String   @default("talos2025")
+  siteName  String   @default("Talos Diario")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

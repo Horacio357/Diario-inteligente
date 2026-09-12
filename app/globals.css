@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700&family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* ========================================
    VARIABLES DE DISEÑO - SISTEMA PREMIUM
@@ -78,8 +78,11 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html, body, button, input, select, textarea {
+  font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
+}
+
 body {
-  font-family: 'Inter', 'Outfit', system-ui, -apple-system, sans-serif;
   background-color: var(--primary-900);
   background-image: url('/img/Gemini_Generated_Image_nnw21snnw21snnw2.png');
   background-size: cover;
@@ -93,6 +96,102 @@ body {
 }
 
 /* Fondo con gradiente animado */
+/* ========================================
+   TEMAS (CYBERPUNK / CLARO / TRADICIONAL)
+   ======================================== */
+
+/* ========================================
+   TEMAS (CYBERPUNK / CLARO / TRADICIONAL)
+   ======================================== */
+
+/* Tema 1: Cyberpunk Neón (Default) */
+[data-theme="cyberpunk"], :root {
+  --bg-base: #060812;
+  --primary-900: #0a0e1a;
+  --primary-800: #0d1528;
+  --primary-700: #111e3a;
+  --accent-primary: #00d4ff;
+  --accent-secondary: #7c3aed;
+  --text-primary: #f0f4ff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --heading-color: #ffffff;
+  --subtext-color: rgba(255, 255, 255, 0.45);
+  --navbar-bg: rgba(6, 8, 18, 0.92);
+  --card-bg: rgba(255, 255, 255, 0.02);
+  --card-border: rgba(0, 212, 255, 0.12);
+  --glass-bg: rgba(13, 21, 40, 0.7);
+  --glass-border: rgba(0, 212, 255, 0.12);
+  --glass-hover: rgba(0, 212, 255, 0.06);
+  --ticker-bg: rgba(10, 14, 26, 0.95);
+  --ticker-text: #f0f4ff;
+}
+
+/* Tema 2: Versión Clara / Modern Light */
+[data-theme="light"] {
+  --bg-base: #f8fafc;
+  --primary-900: #f1f5f9;
+  --primary-800: #e2e8f0;
+  --primary-700: #cbd5e1;
+  --accent-primary: #0284c7;
+  --accent-secondary: #4f46e5;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --heading-color: #0f172a;
+  --subtext-color: #475569;
+  --navbar-bg: rgba(255, 255, 255, 0.95);
+  --card-bg: #ffffff;
+  --card-border: rgba(2, 132, 199, 0.18);
+  --glass-bg: #ffffff;
+  --glass-border: rgba(2, 132, 199, 0.18);
+  --glass-hover: rgba(2, 132, 199, 0.06);
+  --ticker-bg: #f1f5f9;
+  --ticker-text: #0f172a;
+}
+[data-theme="light"] body {
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  color: #0f172a !important;
+}
+[data-theme="light"] body::before,
+[data-theme="light"] body::after {
+  display: none !important;
+}
+
+/* Tema 3: Tradicional / Papel Periódico */
+[data-theme="tradicional"] {
+  --bg-base: #f4efe6;
+  --primary-900: #eae4d5;
+  --primary-800: #e2dcce;
+  --primary-700: #d4ccbd;
+  --accent-primary: #991b1b;
+  --accent-secondary: #1e3a8a;
+  --text-primary: #1c1917;
+  --text-secondary: #44403c;
+  --text-muted: #78716c;
+  --heading-color: #1c1917;
+  --subtext-color: #57534e;
+  --navbar-bg: #eae4d5;
+  --card-bg: #fdfbf7;
+  --card-border: rgba(153, 27, 27, 0.22);
+  --glass-bg: #fdfbf7;
+  --glass-border: rgba(153, 27, 27, 0.2);
+  --glass-hover: rgba(153, 27, 27, 0.05);
+  --ticker-bg: #eae4d5;
+  --ticker-text: #1c1917;
+}
+[data-theme="tradicional"] body {
+  background-color: #f4efe6 !important;
+  background-image: none !important;
+  color: #1c1917 !important;
+  font-family: 'Merriweather', Georgia, 'Times New Roman', serif !important;
+}
+[data-theme="tradicional"] body::before,
+[data-theme="tradicional"] body::after {
+  display: none !important;
+}
+
 body::before {
   content: '';
   position: fixed;
@@ -155,13 +254,13 @@ body::after {
 }
 
 /* ========================================
-   TIPOGRAFÍA
+   TIPOGRAFÍA DE DIARIO CLÁSICO (SERIF)
    ======================================== */
-.font-display { font-family: 'Outfit', sans-serif; }
-.font-body { font-family: 'Inter', sans-serif; }
+.font-display { font-family: 'Merriweather', Georgia, 'Times New Roman', serif; }
+.font-body { font-family: 'Merriweather', Georgia, 'Times New Roman', serif; }
 
-h1, h2, h3 { font-family: 'Outfit', sans-serif; font-weight: 700; line-height: 1.2; }
-h4, h5, h6 { font-family: 'Outfit', sans-serif; font-weight: 600; }
+h1, h2, h3 { font-family: 'Merriweather', Georgia, 'Times New Roman', serif; font-weight: 700; line-height: 1.2; }
+h4, h5, h6 { font-family: 'Merriweather', Georgia, 'Times New Roman', serif; font-weight: 600; }
 
 .text-gradient {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));

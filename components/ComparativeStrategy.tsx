@@ -33,13 +33,13 @@ export default function ComparativeStrategy({ verdict, recommendations }: Compar
       </h3>
 
       <div style={{
-        background: "rgba(245, 158, 11, 0.05)",
-        border: "1px dashed rgba(245, 158, 11, 0.3)",
+        background: "var(--card-bg)",
+        border: "1px dashed var(--glass-border)",
         borderRadius: "var(--radius-md)",
         padding: "1.2rem",
         textAlign: "center",
         fontSize: "0.9rem",
-        color: "var(--text-secondary)",
+        color: "var(--heading-color)",
         lineHeight: 1.6
       }}>
         <strong style={{ color: "#f59e0b" }}>Veredicto: </strong>
@@ -47,8 +47,8 @@ export default function ComparativeStrategy({ verdict, recommendations }: Compar
       </div>
 
       <div style={{
-        background: "linear-gradient(145deg, rgba(124, 58, 237, 0.05), rgba(0, 212, 255, 0.05))",
-        border: "1px solid rgba(124, 58, 237, 0.2)",
+        background: "var(--card-bg)",
+        border: "1px solid var(--glass-border)",
         borderRadius: "var(--radius-md)",
         padding: "1.5rem",
         animation: "fadeInUp 0.5s ease both"
@@ -57,7 +57,7 @@ export default function ComparativeStrategy({ verdict, recommendations }: Compar
           fontFamily: "Outfit", 
           fontSize: "1rem", 
           fontWeight: 700, 
-          color: "var(--text-primary)", 
+          color: "var(--heading-color)", 
           marginBottom: "1rem",
           display: "flex",
           alignItems: "center",
@@ -70,7 +70,7 @@ export default function ComparativeStrategy({ verdict, recommendations }: Compar
           {recommendations.map((rec, i) => (
             <li key={i} style={{
               fontSize: "0.9rem",
-              color: "var(--text-secondary)",
+              color: "var(--heading-color)",
               lineHeight: 1.5,
               display: "flex",
               gap: "0.6rem",

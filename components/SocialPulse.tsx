@@ -208,7 +208,7 @@ export default function SocialPulse() {
 
       {/* Última actualización */}
       <div style={{ textAlign: "center" }}>
-        <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>
+        <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }} suppressHydrationWarning>
           Datos actualizados · {new Date().toLocaleDateString("es-AR", { weekday: "short", hour: "2-digit", minute: "2-digit" })}
         </span>
       </div>

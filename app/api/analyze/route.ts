@@ -1243,6 +1243,20 @@ export async function GET(request: NextRequest) {
   }
 
   analysisCache.set(id, { data: analysis, expiresAt: Date.now() + 30*24*60*60*1000 });
+
+  // Record analytics asynchronously
+  try {
+    const { PrismaClient } = await import("@/lib/generated/prisma");
+    const prisma = new PrismaClient();
+    prisma.analyticsEvent.create({
+      data: {
+        eventType: "ai_query",
+        query: name,
+        category: (analysis as any).category || category || "AI Analyzer",
+      },
+    }).catch(() => null);
+  } catch {}
+
   return NextResponse.json(analysis);
 }
 
