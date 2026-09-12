@@ -41,9 +41,7 @@
     "typescript": "^5"
   },
   "overrides": {
-    "react-simple-maps": {
-      "react": "$react",
-      "react-dom": "$react-dom"
-    }
+    "react": "$react",
+    "react-dom": "$react-dom"
   }
 }
