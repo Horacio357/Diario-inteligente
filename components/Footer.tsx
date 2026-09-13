@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Send, CheckCircle2, MessageSquarePlus, Globe, Share2 } from "lucide-react";
+import { Mail, Send, CheckCircle2, MessageSquare, Globe, Share2, ShieldAlert } from "lucide-react";
 
 interface FooterProps {
   categoryLabel?: string;
@@ -9,14 +9,14 @@ interface FooterProps {
 }
 
 export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
-  const [formData, setFormData] = useState({ name: "", email: "", type: "sugerencia", message: "" });
+  const [formData, setFormData] = useState({ email: "", message: "" });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) {
-      alert("Por favor completá todos los campos antes de enviar.");
+    if (!formData.email || !formData.message) {
+      alert("Por favor completá tu correo y mensaje antes de enviar.");
       return;
     }
     setSending(true);
@@ -27,7 +27,7 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           eventType: "feedback_submission",
-          query: `[${formData.type.toUpperCase()}] ${formData.name} (${formData.email}): ${formData.message}`,
+          query: `[SUGERENCIA] (${formData.email}): ${formData.message}`,
           category: categoryLabel || "General",
         }),
       });
@@ -37,8 +37,8 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
     setSent(true);
     setTimeout(() => {
       setSent(false);
-      setFormData({ name: "", email: "", type: "sugerencia", message: "" });
-    }, 5000);
+      setFormData({ email: "", message: "" });
+    }, 4000);
   };
 
   const accentColor = categoryColor || "var(--accent-primary)";
@@ -49,6 +49,7 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
       marginTop: "3rem",
       padding: "3rem 1.5rem 2rem",
       background: "var(--card-bg)",
+      color: "var(--text-primary)",
       fontFamily: "'Merriweather', Georgia, serif",
     }}>
       <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
@@ -58,7 +59,7 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
           gap: "2.5rem",
           marginBottom: "2.5rem",
         }}>
-          {/* Columna 1: Marca & Contacto Directo */}
+          {/* Columna 1: Marca & Contacto Institucional */}
           <div>
             <div style={{
               fontFamily: "'Merriweather', Georgia, serif",
@@ -77,13 +78,24 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
               marginBottom: "1.25rem",
               fontFamily: "'Merriweather', Georgia, serif",
             }}>
-              El primer diario digital interactivo de Argentina impulsado por Inteligencia Artificial y Periodismo Aumentado.
+              Periódico digital interactivo de Argentina. Análisis de opinión pública y periodismo de investigación respaldado por tecnología.
             </p>
 
             {/* Email de contacto */}
             <div style={{ marginBottom: "1rem" }}>
-              <div style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: accentColor, marginBottom: "0.35rem" }}>
-                📧 Contacto de Redacción
+              <div style={{
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+                color: accentColor,
+                marginBottom: "0.35rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.35rem",
+                fontFamily: "Outfit, sans-serif",
+              }}>
+                <Mail size={12} color={accentColor} /> Contacto de Redacción
               </div>
               <a href="mailto:contacto@talosdiario.com" style={{
                 color: "var(--heading-color)",
@@ -94,14 +106,25 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
                 alignItems: "center",
                 gap: "0.4rem",
               }}>
-                <Mail size={14} color={accentColor} /> contacto@talosdiario.com
+                contacto@talosdiario.com
               </a>
             </div>
 
             {/* Redes Sociales */}
             <div>
-              <div style={{ fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: accentColor, marginBottom: "0.5rem" }}>
-                🌐 Redes Sociales Oficiales
+              <div style={{
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+                color: accentColor,
+                marginBottom: "0.5rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.35rem",
+                fontFamily: "Outfit, sans-serif",
+              }}>
+                <Globe size={12} color={accentColor} /> Redes Sociales Oficiales
               </div>
               <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
                 <a
@@ -114,16 +137,16 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
                     gap: "0.4rem",
                     padding: "0.4rem 0.8rem",
                     borderRadius: "8px",
-                    background: "rgba(225, 48, 108, 0.1)",
-                    border: "1px solid rgba(225, 48, 108, 0.3)",
-                    color: "#e1306c",
+                    background: "var(--glass-bg)",
+                    border: "1px solid var(--glass-border)",
+                    color: "var(--text-primary)",
                     fontSize: "0.78rem",
                     textDecoration: "none",
                     fontWeight: 700,
                     fontFamily: "Outfit, sans-serif",
                   }}
                 >
-                  <Share2 size={14} /> Instagram
+                  <Share2 size={13} /> Instagram
                 </a>
                 <a
                   href="https://facebook.com"
@@ -135,16 +158,16 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
                     gap: "0.4rem",
                     padding: "0.4rem 0.8rem",
                     borderRadius: "8px",
-                    background: "rgba(24, 119, 242, 0.1)",
-                    border: "1px solid rgba(24, 119, 242, 0.3)",
-                    color: "#1877f2",
+                    background: "var(--glass-bg)",
+                    border: "1px solid var(--glass-border)",
+                    color: "var(--text-primary)",
                     fontSize: "0.78rem",
                     textDecoration: "none",
                     fontWeight: 700,
                     fontFamily: "Outfit, sans-serif",
                   }}
                 >
-                  <Globe size={14} /> Facebook
+                  <Globe size={13} /> Facebook
                 </a>
               </div>
             </div>
@@ -153,15 +176,15 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
           {/* Columna 2: Navegación de Secciones */}
           <div>
             <p style={{
-              fontFamily: "'Merriweather', Georgia, serif",
-              fontSize: "0.75rem",
-              fontWeight: 700,
+              fontFamily: "Outfit, sans-serif",
+              fontSize: "0.72rem",
+              fontWeight: 800,
               textTransform: "uppercase",
               letterSpacing: "0.15em",
               color: accentColor,
               marginBottom: "1rem",
             }}>
-              Secciones Principales
+              Secciones
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
               {[
@@ -184,106 +207,65 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
             </div>
           </div>
 
-          {/* Columna 3: Caja de Datos / Sugerencias & Participación */}
+          {/* Columna 3: Captador de Email & Sugerencias (Rediseñado Simple) */}
           <div style={{
-            background: "rgba(0, 0, 0, 0.04)",
+            background: "var(--glass-bg)",
             border: "1px solid var(--glass-border)",
-            borderRadius: "14px",
+            borderRadius: "12px",
             padding: "1.25rem",
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-              <MessageSquarePlus size={16} color={accentColor} />
+            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", marginBottom: "0.4rem" }}>
+              <MessageSquare size={15} color={accentColor} />
               <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "var(--heading-color)", fontFamily: "Outfit, sans-serif" }}>
-                Participación & Sugerencias
+                Contacto & Sugerencias
               </span>
             </div>
             <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.85rem", lineHeight: 1.45, fontFamily: "'Merriweather', Georgia, serif" }}>
-              ¿Querés proponer una nota, colaborar como invitado o dejarnos una sugerencia para el diario?
+              Dejanos tu correo y comentario para ponernos en contacto con la redacción.
             </p>
 
             {sent ? (
               <div style={{
-                background: "rgba(0, 230, 118, 0.12)",
+                background: "rgba(0, 230, 118, 0.1)",
                 border: "1px solid #00e676",
-                borderRadius: "10px",
-                padding: "0.85rem",
+                borderRadius: "8px",
+                padding: "0.75rem",
                 textAlign: "center",
                 color: "#00e676",
-                fontSize: "0.8rem",
-                fontFamily: "Inter, sans-serif",
+                fontSize: "0.78rem",
+                fontFamily: "Outfit, sans-serif",
+                fontWeight: 700,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "0.5rem",
+                gap: "0.4rem",
               }}>
-                <CheckCircle2 size={16} /> ¡Gracias! Tu sugerencia fue enviada a la redacción.
+                <CheckCircle2 size={15} /> Mensaje recibido. Gracias por comunicarte.
               </div>
             ) : (
-              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
-                  <input
-                    type="text"
-                    placeholder="Tu nombre"
-                    value={formData.name}
-                    onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
-                    style={{
-                      width: "100%",
-                      boxSizing: "border-box",
-                      background: "var(--card-bg)",
-                      border: "1px solid var(--glass-border)",
-                      borderRadius: "8px",
-                      padding: "0.45rem 0.65rem",
-                      fontSize: "0.78rem",
-                      color: "var(--text-primary)",
-                      fontFamily: "Inter, sans-serif",
-                      outline: "none",
-                    }}
-                  />
-                  <input
-                    type="email"
-                    placeholder="Tu email"
-                    value={formData.email}
-                    onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
-                    style={{
-                      width: "100%",
-                      boxSizing: "border-box",
-                      background: "var(--card-bg)",
-                      border: "1px solid var(--glass-border)",
-                      borderRadius: "8px",
-                      padding: "0.45rem 0.65rem",
-                      fontSize: "0.78rem",
-                      color: "var(--text-primary)",
-                      fontFamily: "Inter, sans-serif",
-                      outline: "none",
-                    }}
-                  />
-                </div>
-
-                <select
-                  value={formData.type}
-                  onChange={e => setFormData(p => ({ ...p, type: e.target.value }))}
+              <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <input
+                  type="email"
+                  placeholder="Tu correo electrónico"
+                  value={formData.email}
+                  onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
                   style={{
                     width: "100%",
                     boxSizing: "border-box",
                     background: "var(--card-bg)",
                     border: "1px solid var(--glass-border)",
                     borderRadius: "8px",
-                    padding: "0.45rem 0.65rem",
-                    fontSize: "0.75rem",
+                    padding: "0.5rem 0.75rem",
+                    fontSize: "0.8rem",
                     color: "var(--text-primary)",
                     fontFamily: "Inter, sans-serif",
                     outline: "none",
                   }}
-                >
-                  <option value="sugerencia">💡 Sugerencia o Mejora</option>
-                  <option value="colaboracion">✍️ Quiero colaborar / Columna de opinión</option>
-                  <option value="noticia">📰 Proponer tema o noticia de mi provincia</option>
-                  <option value="otro">💬 Consulta general</option>
-                </select>
+                />
 
                 <textarea
                   rows={2}
-                  placeholder="Escribí tu sugerencia o mensaje..."
+                  placeholder="Escribí tu mensaje o sugerencia aquí..."
                   value={formData.message}
                   onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
                   style={{
@@ -292,12 +274,12 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
                     background: "var(--card-bg)",
                     border: "1px solid var(--glass-border)",
                     borderRadius: "8px",
-                    padding: "0.45rem 0.65rem",
-                    fontSize: "0.78rem",
+                    padding: "0.5rem 0.75rem",
+                    fontSize: "0.8rem",
                     color: "var(--text-primary)",
                     fontFamily: "Inter, sans-serif",
                     outline: "none",
-                    resize: "vertical",
+                    resize: "none",
                   }}
                 />
 
@@ -319,33 +301,34 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
                     justifyContent: "center",
                     gap: "0.4rem",
                     transition: "opacity 0.2s",
+                    marginTop: "0.2rem",
                   }}
                 >
-                  <Send size={12} /> {sending ? "Enviando..." : "Enviar a la Redacción"}
+                  <Send size={12} /> {sending ? "Enviando..." : "Enviar mensaje"}
                 </button>
               </form>
             )}
           </div>
         </div>
 
-        {/* Bloque Disclaimer & Aviso Legal sobre IA */}
+        {/* Bloque Disclaimer & Aviso Legal sin Emojis */}
         <div style={{
           marginTop: "2rem",
           marginBottom: "1.5rem",
-          background: "rgba(0,212,255,0.03)",
-          border: "1px solid rgba(0,212,255,0.15)",
+          background: "var(--glass-bg)",
+          border: "1px solid var(--glass-border)",
           borderRadius: "12px",
           padding: "1rem 1.25rem",
           fontFamily: "Inter, sans-serif",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.4rem" }}>
-            <span style={{ fontSize: "0.85rem" }}>⚖️</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", marginBottom: "0.4rem" }}>
+            <ShieldAlert size={14} color={accentColor} />
             <span style={{ fontSize: "0.72rem", fontFamily: "Outfit, sans-serif", fontWeight: 800, color: accentColor, textTransform: "uppercase", letterSpacing: "0.12em" }}>
-              Aviso Legal & Descargo de Responsabilidad sobre Periodismo Aumentado con IA
+              Aviso Legal & Descargo de Responsabilidad Institucional
             </span>
           </div>
           <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", lineHeight: 1.55, margin: 0 }}>
-            <strong>Talos Diario</strong> es un medio de comunicación digital interactivo respaldado por modelos de inteligencia artificial y minería de fuentes públicas (RSS, medios de prensa y tendencias en redes sociales). Las métricas del <em>Mapa de Calor Territorial</em>, los índices de polaridad y las síntesis narrativas son estimaciones automatizadas generadas con fines periodísticos e informativos. No constituyen asesoramiento financiero, ni encuestas electorales oficiales. Todos los derechos sobre artículos de prensa citados pertenecen a sus respectivos autores y medios emisores.
+            <strong>Proyecto Talos</strong> es una plataforma de periodismo interactivo respaldada por modelos analíticos automatizados y recopilación de fuentes informativas públicas. Las métricas del <em>Mapa de Calor Territorial</em>, los índices de opinión y los resúmenes temáticos constituyen estimaciones periodísticas automatizadas generadas con fines exclusivamente informativos. No constituyen asesoramiento financiero, consultoría política ni son encuestas electorales oficiales. Todos los derechos sobre artículos y fuentes citadas corresponden a sus respectivos autores y medios emisores.
           </p>
         </div>
 
@@ -360,7 +343,7 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
           alignItems: "center",
         }}>
           <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontFamily: "'Merriweather', Georgia, serif" }}>
-            © 2026 Proyecto Talos · Todos los derechos reservados · Periodismo Aumentado por IA
+            © 2026 Proyecto Talos · Todos los derechos reservados · Periodismo Aumentado
           </span>
           <span style={{ fontSize: "0.75rem", color: accentColor, fontFamily: "'Merriweather', Georgia, serif", fontWeight: 700 }}>
             {categoryLabel ? `Sección ${categoryLabel}` : "Edición Impresa Digital"} · Argentina

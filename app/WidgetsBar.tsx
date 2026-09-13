@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Cloud, Sun, CloudRain, TrendingUp, TrendingDown, Minus, Search, GitCompare } from "lucide-react";
+import { Cloud, Sun, CloudRain, TrendingUp, TrendingDown, Minus, Search, Cpu, Plane } from "lucide-react";
 
 // ─── CLIMA ──────────────────────────────────────────────────────────────────
 function WeatherWidget() {
@@ -243,28 +243,28 @@ export default function WidgetsBar() {
   const widgets = [
     {
       id: "clima",
-      icon: "🌤️",
+      icon: <Sun size={14} color="var(--accent-primary)" />,
       label: "Clima",
       sublabel: "Buenos Aires",
       content: <WeatherWidget />,
     },
     {
       id: "economia",
-      icon: "📈",
+      icon: <TrendingUp size={14} color="var(--accent-primary)" />,
       label: "Economía",
       sublabel: "Indicadores clave",
       content: <EconomyWidget />,
     },
     {
       id: "analisis",
-      icon: "🧠",
+      icon: <Cpu size={14} color="var(--accent-primary)" />,
       label: "Análisis IA",
       sublabel: "Perfil rápido de figura pública",
       content: <QuickAnalysisWidget />,
     },
     {
       id: "vuelos",
-      icon: "✈️",
+      icon: <Plane size={14} color="var(--accent-primary)" />,
       label: "Vuelos",
       sublabel: "Estado en tiempo real",
       content: <FlightsWidget />,

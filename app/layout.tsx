@@ -2,24 +2,65 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://talosdiario.ar";
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0a0e1a",
+  themeColor: "#f4efe6",
 };
 
 export const metadata: Metadata = {
-  title: "Proyecto Talos | Inteligencia Colectiva & Análisis Sociopolítico",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Talos Diario · Periódico Digital Interactivo de Argentina",
+    template: "%s · Talos Diario",
+  },
   description:
-    "Plataforma avanzada de análisis de sentimiento e inteligencia sociopolítica. Monitorea el pulso social, arquetipos de personalidades y el mapa de calor emocional de Argentina en tiempo real.",
-  keywords:
-    "análisis social, inteligencia artificial, sentimiento, Argentina, política, personalidades públicas",
-  authors: [{ name: "Proyecto Talos" }],
+    "El primer periódico digital interactivo de Argentina impulsado por Inteligencia Artificial y Periodismo Aumentado. Análisis de opinion pública, noticias en tiempo real y mapa de calor territorial.",
+  keywords: [
+    "Talos Diario", "Proyecto Talos", "Noticias Argentina", "Diario Digital",
+    "Inteligencia Artificial", "Periodismo Aumentado", "Política Argentina",
+    "Economía", "Deportes", "Tecnología", "Pulso Nacional", "Mapa de Calor"
+  ],
+  authors: [{ name: "Redacción Talos" }],
+  creator: "Proyecto Talos",
+  publisher: "Proyecto Talos",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
-    title: "Proyecto Talos | Inteligencia Colectiva",
+    title: "Talos Diario · Periódico Digital Interactivo de Argentina",
     description:
-      "Monitorea el pulso social y los arquetipos de personalidades públicas en tiempo real",
+      "Periodismo aumentado con Inteligencia Artificial, mapa de calor territorial y noticias en vivo.",
+    url: siteUrl,
+    siteName: "Talos Diario",
+    locale: "es_AR",
     type: "website",
+    images: [
+      {
+        url: `${siteUrl}/api/og?title=${encodeURIComponent("Talos Diario · Periódico Digital Interactivo")}&category=ARGENTINA`,
+        width: 1200,
+        height: 630,
+        alt: "Talos Diario · Periodismo Aumentado por IA",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Talos Diario · Periódico Digital Interactivo de Argentina",
+    description:
+      "Noticias en tiempo real, análisis de opinión pública y mapa de calor territorial con IA.",
+    site: "@TalosDiario",
+    creator: "@TalosDiario",
+    images: [`${siteUrl}/api/og?title=${encodeURIComponent("Talos Diario · Periódico Digital Interactivo")}&category=ARGENTINA`],
   },
 };
 

@@ -16,6 +16,7 @@ import SponsorTickerBar from "@/components/SponsorTickerBar";
 import IAConceptAnalyzer from "@/components/IAConceptAnalyzer";
 import CommercialAdBlock from "@/components/CommercialAdBlock";
 import MatrizImpactoEconomico from "@/components/MatrizImpactoEconomico";
+import NewsletterBox from "@/components/NewsletterBox";
 
 function sentimentDot(s: number) {
   if (s > 0.2) return { color: "#00e676", label: "+" };
@@ -223,15 +224,15 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
                       fontWeight: 700,
                       textTransform: "uppercase",
                       letterSpacing: "0.2em",
-                      color: "#00d4ff",
-                      background: "rgba(0,212,255,0.12)",
-                      border: "1px solid rgba(0,212,255,0.25)",
+                      color: "var(--accent-primary)",
+                      background: "var(--glass-hover)",
+                      border: "1px solid var(--glass-border)",
                       padding: "0.25rem 0.65rem",
                       borderRadius: "6px",
                       display: "inline-block",
                       marginBottom: "0.75rem",
                     }}>
-                      ✦ Lectura Interactiva
+                      Lectura Interactiva
                     </span>
                     <h2 style={{
                       fontFamily: "Outfit, sans-serif",
@@ -306,6 +307,9 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
         </div>
         <WidgetsBar />
       </div>
+
+      {/* ─── NEWSLETTER MATUTINA DE TALOS ─── */}
+      <NewsletterBox />
 
       {/* ─── SECCIÓN SECUNDARIA: NOTAS + PUBLICIDAD & PROMOS + SIDEBAR ─── */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.5rem" }} className="secondary-grid">

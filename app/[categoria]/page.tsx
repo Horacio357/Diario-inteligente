@@ -5,7 +5,7 @@ import NewsTickerBar from "@/components/NewsTickerBar";
 import AdBanner from "@/components/AdBanner";
 import MobileAnchorAd from "@/components/MobileAnchorAd";
 import Footer from "@/components/Footer";
-import { Eye } from "lucide-react";
+import type { Metadata } from "next";
 
 export const CATEGORY_CONFIG: Record<string, {
   label: string;
@@ -65,6 +65,41 @@ export const CATEGORY_CONFIG: Record<string, {
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ categoria: string }>;
+}): Promise<Metadata> {
+  const { categoria } = await params;
+  const config = CATEGORY_CONFIG[categoria];
+
+  if (!config) {
+    return { title: "Sección no encontrada · Talos Diario" };
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://talosdiario.ar";
+  const ogImageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(`Sección ${config.label} · Talos Diario`)}&category=${encodeURIComponent(config.label.toUpperCase())}&summary=${encodeURIComponent(config.description)}`;
+
+  return {
+    title: `Sección ${config.label} · Talos Diario`,
+    description: config.description,
+    openGraph: {
+      title: `Sección ${config.label} · Talos Diario`,
+      description: config.description,
+      url: `${siteUrl}/${categoria}`,
+      siteName: "Talos Diario",
+      type: "website",
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Sección ${config.label} · Talos Diario`,
+      description: config.description,
+      images: [ogImageUrl],
+    },
+  };
+}
+
 export default async function CategoryPage({
   params,
 }: {
@@ -92,4 +127,3 @@ export default async function CategoryPage({
     </div>
   );
 }
-

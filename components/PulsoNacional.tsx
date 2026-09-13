@@ -132,9 +132,9 @@ export default function PulsoNacional({ provinceData }: PulsoNacionalProps) {
           }} />
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.6rem", color: "var(--text-muted)", fontFamily: "Inter, sans-serif" }}>
-          <span>😤 Crisis</span>
-          <span>😊 Consenso</span>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.65rem", color: "var(--text-muted)", fontFamily: "Outfit, sans-serif", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <span>Tensión / Crisis</span>
+          <span>Consenso</span>
         </div>
       </div>
 

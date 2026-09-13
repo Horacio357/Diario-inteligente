@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Clock, ExternalLink, TrendingUp, Search, Sparkles, BarChart3, Radio } from "lucide-react";
+import { Clock, ExternalLink, TrendingUp, Search, Sparkles, BarChart3, Radio, Landmark, Trophy, Laptop, Microscope, MapPin } from "lucide-react";
 import NarrativasEmergentes from "@/components/NarrativasEmergentes";
 import PulsoNacional from "@/components/PulsoNacional";
 import HeatMapArgentina from "@/components/HeatMapArgentina";
@@ -123,7 +123,11 @@ export default function CategoryPageClient({
               flexShrink: 0,
             }}
           >
-            {config.emoji}
+            {categoria === "politica" ? <Landmark size={24} color={config.color} /> :
+             categoria === "deportes" ? <Trophy size={24} color={config.color} /> :
+             categoria === "tecnologia" ? <Laptop size={24} color={config.color} /> :
+             categoria === "ciencia" ? <Microscope size={24} color={config.color} /> :
+             <MapPin size={24} color={config.color} />}
           </div>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>

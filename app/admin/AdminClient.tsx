@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import {
   FileText, Megaphone, Plus, Pencil, Trash2, Eye, EyeOff, Save, X, Lock, LogOut, CheckCircle, AlertTriangle,
-  Globe, Sparkles, Wand2, Upload, BarChart3, Layout, Users, Radio, MessageSquare, Flame, TrendingUp, Search
+  Globe, Sparkles, Wand2, Upload, BarChart3, Layout, Users, Radio, MessageSquare, Flame, TrendingUp, Search, Mail
 } from "lucide-react";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────────
@@ -308,11 +308,12 @@ export default function AdminClient() {
   const [authError, setAuthError] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string; role: "ADMIN" | "EDITOR" | "REDACTOR" } | null>(null);
 
-  const [tab, setTab] = useState<"analytics" | "spaces" | "articles" | "ads" | "users">("analytics");
+  const [tab, setTab] = useState<"analytics" | "spaces" | "articles" | "ads" | "users" | "newsletter">("analytics");
   const [articles, setArticles] = useState<Article[]>([]);
   const [ads, setAds] = useState<Ad[]>([]);
   const [spaces, setSpaces] = useState<NewspaperSpace[]>([]);
   const [usersList, setUsersList] = useState<UserRole[]>([]);
+  const [subscribers, setSubscribers] = useState<{ id: string; email: string; name?: string; createdAt: string }[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -344,18 +345,20 @@ export default function AdminClient() {
   const fetchData = async (t: string) => {
     setLoading(true);
     try {
-      const [arRes, adRes, spRes, anRes, usRes] = await Promise.all([
+      const [arRes, adRes, spRes, anRes, usRes, newsRes] = await Promise.all([
         fetch(`/api/admin?resource=articles`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
         fetch(`/api/admin?resource=ads`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
         fetch(`/api/admin/spaces`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
         fetch(`/api/admin/analytics`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : null),
         fetch(`/api/admin/users`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
+        fetch(`/api/newsletter?token=${encodeURIComponent(t)}`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
       ]);
       setArticles(arRes.articles ?? []);
       setAds(adRes.ads ?? []);
       setSpaces(spRes.spaces ?? []);
       if (anRes) setAnalytics(anRes);
       setUsersList(usRes.users ?? []);
+      setSubscribers(newsRes.subscribers ?? []);
     } catch {}
     finally { setLoading(false); }
   };
@@ -497,12 +500,21 @@ export default function AdminClient() {
           }}><FileText size={14} /> {isRedactor ? "Mis Notas Redactadas" : "Notas Editoriales"}</button>
 
           {!isRedactor && (
-            <button onClick={() => setTab("ads")} style={{
-              background: tab === "ads" ? "rgba(0,212,255,0.12)" : "rgba(255,255,255,0.03)",
-              border: `1px solid ${tab === "ads" ? "rgba(0,212,255,0.3)" : "rgba(255,255,255,0.07)"}`,
-              borderRadius: "8px", padding: "0.5rem 1rem", color: tab === "ads" ? "#00d4ff" : "rgba(255,255,255,0.5)",
-              fontFamily: "Outfit, sans-serif", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem"
-            }}><Megaphone size={14} /> Publicidad y Banners</button>
+            <>
+              <button onClick={() => setTab("ads")} style={{
+                background: tab === "ads" ? "rgba(0,212,255,0.12)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${tab === "ads" ? "rgba(0,212,255,0.3)" : "rgba(255,255,255,0.07)"}`,
+                borderRadius: "8px", padding: "0.5rem 1rem", color: tab === "ads" ? "#00d4ff" : "rgba(255,255,255,0.5)",
+                fontFamily: "Outfit, sans-serif", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem"
+              }}><Megaphone size={14} /> Publicidad y Banners</button>
+
+              <button onClick={() => setTab("newsletter")} style={{
+                background: tab === "newsletter" ? "rgba(0,212,255,0.12)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${tab === "newsletter" ? "rgba(0,212,255,0.3)" : "rgba(255,255,255,0.07)"}`,
+                borderRadius: "8px", padding: "0.5rem 1rem", color: tab === "newsletter" ? "#00d4ff" : "rgba(255,255,255,0.5)",
+                fontFamily: "Outfit, sans-serif", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem"
+              }}><Mail size={14} /> Newsletter ({subscribers.length})</button>
+            </>
           )}
 
           {isAdmin && (
@@ -773,6 +785,62 @@ export default function AdminClient() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ─── TAB: NEWSLETTER SUBSCRIBERS ─── */}
+        {tab === "newsletter" && !isRedactor && (
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <div>
+                <h2 style={{ fontFamily: "Outfit, sans-serif", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>
+                  📬 Suscriptores de El Resumen Matutino de Talos ({subscribers.length})
+                </h2>
+                <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)", fontFamily: "Inter, sans-serif" }}>
+                  Lectores registrados para recibir la edición diaria de las 7:00 AM.
+                </p>
+              </div>
+              <Btn onClick={() => {
+                const csv = "Email,Nombre,Fecha\n" + subscribers.map(s => `"${s.email}","${s.name || ""}","${new Date(s.createdAt).toLocaleDateString()}"`).join("\n");
+                const blob = new Blob([csv], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `suscriptores-talos-${Date.now()}.csv`;
+                a.click();
+              }} variant="secondary" size="sm">
+                <FileText size={12} /> Exportar Lista CSV
+              </Btn>
+            </div>
+
+            {subscribers.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "3rem", color: "rgba(255,255,255,0.25)", fontFamily: "Inter, sans-serif" }}>
+                Aún no hay suscriptores registrados. ¡Los lectores se suscribirán desde el portal!
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                {subscribers.map((sub, idx) => (
+                  <div key={sub.id || idx} style={{
+                    background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: "10px", padding: "0.85rem 1rem", display: "flex", justifyContent: "space-between", alignItems: "center",
+                  }}>
+                    <div>
+                      <span style={{ fontFamily: "Outfit, sans-serif", fontWeight: 700, fontSize: "0.9rem", color: "#fff" }}>
+                        {sub.email}
+                      </span>
+                      {sub.name && (
+                        <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)", marginLeft: "0.75rem", fontFamily: "Inter, sans-serif" }}>
+                          ({sub.name})
+                        </span>
+                      )}
+                    </div>
+                    <span style={{ fontSize: "0.7rem", color: "#00d4ff", fontFamily: "Outfit, sans-serif", fontWeight: 600 }}>
+                      Registrado: {new Date(sub.createdAt).toLocaleDateString("es-AR")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

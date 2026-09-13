@@ -14,13 +14,15 @@ const SECTIONS = [
 export default function TalosNavbar({ activeSection }: { activeSection?: string }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [theme, setTheme] = useState<"cyberpunk" | "light" | "tradicional">("cyberpunk");
+  const [theme, setTheme] = useState<"cyberpunk" | "light" | "tradicional">("tradicional");
 
   useEffect(() => {
     const saved = localStorage.getItem("talos_theme") as any;
     if (saved && ["cyberpunk", "light", "tradicional"].includes(saved)) {
       setTheme(saved);
       document.documentElement.setAttribute("data-theme", saved);
+    } else {
+      document.documentElement.setAttribute("data-theme", "tradicional");
     }
   }, []);
 
@@ -165,14 +167,27 @@ export default function TalosNavbar({ activeSection }: { activeSection?: string 
               );
             })}
 
+            {/* ─── LINK AL BUSCADOR ─── */}
+            <Link href="/buscar" style={{
+              textDecoration: "none", fontFamily: "Outfit, sans-serif", fontSize: "0.85rem", fontWeight: 700,
+              color: activeSection === "buscar" ? "var(--accent-primary)" : "var(--text-primary)",
+              padding: "0.4rem 0.85rem", borderRadius: "8px",
+              border: activeSection === "buscar" ? "1px solid var(--accent-primary)" : "1px solid transparent",
+              background: activeSection === "buscar" ? "var(--glass-hover)" : "transparent",
+              transition: "all 0.2s ease", letterSpacing: "0.02em", textTransform: "uppercase",
+              display: "flex", alignItems: "center", gap: "0.3rem",
+            }}>
+              Buscar
+            </Link>
+
             {/* ─── LINK DIRECTO AL ADMIN / REDACCIÓN ─── */}
             <Link href="/admin" style={{
               textDecoration: "none", fontFamily: "Outfit, sans-serif", fontSize: "0.8rem", fontWeight: 800,
-              color: "#00d4ff", padding: "0.35rem 0.75rem", borderRadius: "8px",
-              background: "rgba(0,212,255,0.08)", border: "1px solid rgba(0,212,255,0.25)",
+              color: "var(--accent-primary)", padding: "0.35rem 0.75rem", borderRadius: "8px",
+              background: "var(--glass-hover)", border: "1px solid var(--glass-border)",
               display: "flex", alignItems: "center", gap: "0.3rem", transition: "all 0.2s ease"
             }}>
-              🔑 Admin
+              Redacción
             </Link>
 
             {/* ─── SELECTOR DE TEMA DE EDICIÓN ─── */}
@@ -187,40 +202,40 @@ export default function TalosNavbar({ activeSection }: { activeSection?: string 
               marginLeft: "0.25rem",
             }}>
               <button
-                title="Modo Neón Cyberpunk"
+                title="Edición Impresa / Papel Periódico (Estándar)"
+                onClick={() => changeTheme("tradicional")}
+                style={{
+                  background: theme === "tradicional" ? "var(--accent-primary)" : "transparent",
+                  border: theme === "tradicional" ? "1px solid var(--accent-primary)" : "1px solid transparent",
+                  borderRadius: "100px", padding: "0.2rem 0.65rem", color: theme === "tradicional" ? "#ffffff" : "var(--text-muted)",
+                  fontSize: "0.7rem", fontFamily: "Outfit, sans-serif", fontWeight: 800, cursor: "pointer",
+                }}
+              >
+                Papel (Estándar)
+              </button>
+              <button
+                title="Modo Neón / Noche"
                 onClick={() => changeTheme("cyberpunk")}
                 style={{
-                  background: theme === "cyberpunk" ? "rgba(0,212,255,0.2)" : "transparent",
-                  border: theme === "cyberpunk" ? "1px solid #00d4ff" : "1px solid transparent",
-                  borderRadius: "100px", padding: "0.2rem 0.55rem", color: theme === "cyberpunk" ? "#00d4ff" : "var(--text-muted)",
+                  background: theme === "cyberpunk" ? "var(--accent-primary)" : "transparent",
+                  border: theme === "cyberpunk" ? "1px solid var(--accent-primary)" : "1px solid transparent",
+                  borderRadius: "100px", padding: "0.2rem 0.55rem", color: theme === "cyberpunk" ? "#ffffff" : "var(--text-muted)",
                   fontSize: "0.7rem", fontFamily: "Outfit, sans-serif", fontWeight: 700, cursor: "pointer",
                 }}
               >
-                ⚡ Neón
+                Noche
               </button>
               <button
                 title="Modo Claro"
                 onClick={() => changeTheme("light")}
                 style={{
-                  background: theme === "light" ? "rgba(2,132,199,0.2)" : "transparent",
-                  border: theme === "light" ? "1px solid #0284c7" : "1px solid transparent",
-                  borderRadius: "100px", padding: "0.2rem 0.55rem", color: theme === "light" ? "#0284c7" : "var(--text-muted)",
+                  background: theme === "light" ? "var(--accent-primary)" : "transparent",
+                  border: theme === "light" ? "1px solid var(--accent-primary)" : "1px solid transparent",
+                  borderRadius: "100px", padding: "0.2rem 0.55rem", color: theme === "light" ? "#ffffff" : "var(--text-muted)",
                   fontSize: "0.7rem", fontFamily: "Outfit, sans-serif", fontWeight: 700, cursor: "pointer",
                 }}
               >
-                ☀️ Día
-              </button>
-              <button
-                title="Modo Periódico Tradicional"
-                onClick={() => changeTheme("tradicional")}
-                style={{
-                  background: theme === "tradicional" ? "rgba(153,27,27,0.2)" : "transparent",
-                  border: theme === "tradicional" ? "1px solid #991b1b" : "1px solid transparent",
-                  borderRadius: "100px", padding: "0.2rem 0.55rem", color: theme === "tradicional" ? "#991b1b" : "var(--text-muted)",
-                  fontSize: "0.7rem", fontFamily: "Outfit, sans-serif", fontWeight: 700, cursor: "pointer",
-                }}
-              >
-                📰 Papel
+                Día
               </button>
             </div>
           </div>
