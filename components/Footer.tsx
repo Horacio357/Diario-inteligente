@@ -328,6 +328,27 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
           </div>
         </div>
 
+        {/* Bloque Disclaimer & Aviso Legal sobre IA */}
+        <div style={{
+          marginTop: "2rem",
+          marginBottom: "1.5rem",
+          background: "rgba(0,212,255,0.03)",
+          border: "1px solid rgba(0,212,255,0.15)",
+          borderRadius: "12px",
+          padding: "1rem 1.25rem",
+          fontFamily: "Inter, sans-serif",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.4rem" }}>
+            <span style={{ fontSize: "0.85rem" }}>⚖️</span>
+            <span style={{ fontSize: "0.72rem", fontFamily: "Outfit, sans-serif", fontWeight: 800, color: accentColor, textTransform: "uppercase", letterSpacing: "0.12em" }}>
+              Aviso Legal & Descargo de Responsabilidad sobre Periodismo Aumentado con IA
+            </span>
+          </div>
+          <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", lineHeight: 1.55, margin: 0 }}>
+            <strong>Talos Diario</strong> es un medio de comunicación digital interactivo respaldado por modelos de inteligencia artificial y minería de fuentes públicas (RSS, medios de prensa y tendencias en redes sociales). Las métricas del <em>Mapa de Calor Territorial</em>, los índices de polaridad y las síntesis narrativas son estimaciones automatizadas generadas con fines periodísticos e informativos. No constituyen asesoramiento financiero, ni encuestas electorales oficiales. Todos los derechos sobre artículos de prensa citados pertenecen a sus respectivos autores y medios emisores.
+          </p>
+        </div>
+
         {/* Bottom footer */}
         <div style={{
           borderTop: "1px solid var(--glass-border)",
