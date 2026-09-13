@@ -15,6 +15,7 @@ import PersonalityComparator from "@/components/PersonalityComparator";
 import SponsorTickerBar from "@/components/SponsorTickerBar";
 import IAConceptAnalyzer from "@/components/IAConceptAnalyzer";
 import CommercialAdBlock from "@/components/CommercialAdBlock";
+import MatrizImpactoEconomico from "@/components/MatrizImpactoEconomico";
 
 function sentimentDot(s: number) {
   if (s > 0.2) return { color: "#00e676", label: "+" };
@@ -281,6 +282,9 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
 
       {/* ─── ANALIZADOR DE CONCEPTOS & FIGURAS CON IA ─── */}
       <IAConceptAnalyzer onAnalysisComplete={handleAnalysisComplete} />
+
+      {/* ─── MATRIZ DE IMPACTO ECONÓMICO VS HUMOR SOCIAL ─── */}
+      <MatrizImpactoEconomico />
 
       {/* ─── COMPARADOR DE PERSONALIDADES E INFORME IA ─── */}
       <PersonalityComparator />
