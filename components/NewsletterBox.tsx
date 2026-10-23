@@ -105,7 +105,7 @@ export default function NewsletterBox({ compact }: { compact?: boolean }) {
           alignItems: "center",
           gap: "0.6rem",
         }}>
-          <CheckCircle2 size={18} flexShrink={0} />
+          <CheckCircle2 size={18} style={{ flexShrink: 0 }} />
           <div>{successMsg}</div>
         </div>
       ) : (

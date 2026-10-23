@@ -156,7 +156,7 @@ export default function GuestEditorialColumn() {
       ) : (
         <>
           {/* Selector de Artículos de Invitados */}
-          <div style={{ display: "flex", gap: "0.4rem", overflowX: "auto", pb: "0.2rem" }}>
+          <div style={{ display: "flex", gap: "0.4rem", overflowX: "auto", paddingBottom: "0.2rem" }}>
             {GUEST_ARTICLES.map((art, idx) => (
               <button
                 key={art.id}

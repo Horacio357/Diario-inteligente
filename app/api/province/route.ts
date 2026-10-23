@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const cacheKey = `${topic}_${provinceId}`;
     const cached = provinceCache.get(cacheKey);
     if (cached && Date.now() < cached.expiresAt) {
-      return NextResponse.json({ ...cached.data, fromCache: true });
+      return NextResponse.json({ ...(cached.data as any), fromCache: true });
     }
 
     const governor = ARGENTINE_GOVERNORS[provinceId] || "desconocido";

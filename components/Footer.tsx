@@ -194,6 +194,8 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
                 { label: "Ciencia & Futuro", path: "/ciencia" },
                 { label: "Locales & Regiones", path: "/locales" },
                 { label: "Metodología & Fuentes", path: "/metodologia" },
+                { label: "Términos y Condiciones", path: "/terminos" },
+                { label: "Política de Privacidad", path: "/privacidad" },
                 { label: "Talos Inteligencia (B2B)", path: "/inteligencia" },
               ].map(s => (
                 <a key={s.path} href={s.path} style={{
@@ -345,9 +347,17 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
           justifyContent: "space-between",
           alignItems: "center",
         }}>
-          <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontFamily: "'Merriweather', Georgia, serif" }}>
-            © 2026 Proyecto Talos · Todos los derechos reservados · Periodismo Aumentado
-          </span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontFamily: "'Merriweather', Georgia, serif" }}>
+              © 2026 Proyecto Talos · Todos los derechos reservados
+            </span>
+            <span style={{ color: "var(--glass-border)" }}>|</span>
+            <a href="/terminos" style={{ fontSize: "0.75rem", color: "var(--text-muted)", textDecoration: "none" }}>Términos de Uso</a>
+            <span style={{ color: "var(--glass-border)" }}>·</span>
+            <a href="/privacidad" style={{ fontSize: "0.75rem", color: "var(--text-muted)", textDecoration: "none" }}>Privacidad</a>
+            <span style={{ color: "var(--glass-border)" }}>·</span>
+            <a href="/metodologia" style={{ fontSize: "0.75rem", color: "var(--text-muted)", textDecoration: "none" }}>Metodología</a>
+          </div>
           <span style={{ fontSize: "0.75rem", color: accentColor, fontFamily: "'Merriweather', Georgia, serif", fontWeight: 700 }}>
             {categoryLabel ? `Sección ${categoryLabel}` : "Edición Impresa Digital"} · Argentina
           </span>

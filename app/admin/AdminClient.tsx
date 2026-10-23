@@ -16,6 +16,7 @@ interface Article {
 interface Ad {
   id: string; section: string; title?: string; imageUrl?: string;
   linkUrl?: string; code?: string; active: boolean; priority: number;
+  position?: string;
 }
 
 interface NewspaperSpace {
@@ -353,12 +354,12 @@ export default function AdminClient() {
         fetch(`/api/admin/users`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
         fetch(`/api/newsletter?token=${encodeURIComponent(t)}`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
       ]);
-      setArticles(arRes.articles ?? []);
-      setAds(adRes.ads ?? []);
-      setSpaces(spRes.spaces ?? []);
+      setArticles((arRes as any).articles ?? []);
+      setAds((adRes as any).ads ?? []);
+      setSpaces((spRes as any).spaces ?? []);
       if (anRes) setAnalytics(anRes);
-      setUsersList(usRes.users ?? []);
-      setSubscribers(newsRes.subscribers ?? []);
+      setUsersList((usRes as any).users ?? []);
+      setSubscribers((newsRes as any).subscribers ?? []);
     } catch {}
     finally { setLoading(false); }
   };
@@ -456,7 +457,7 @@ export default function AdminClient() {
       {/* Top Navbar */}
       <div style={{
         background: "rgba(10,14,26,0.95)", borderBottom: "1px solid rgba(0,212,255,0.12)",
-        padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: "60px", sticky: "top", zIndex: 100,
+        padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: "60px", position: "sticky", top: 0, zIndex: 100,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
           <span style={{ fontFamily: "Outfit, sans-serif", fontWeight: 900, fontSize: "1.2rem", color: "#00d4ff" }}>TALOS</span>
