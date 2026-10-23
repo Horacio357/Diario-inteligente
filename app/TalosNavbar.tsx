@@ -9,6 +9,7 @@ const SECTIONS = [
   { label: "Tecnología", href: "/tecnologia" },
   { label: "Ciencia", href: "/ciencia" },
   { label: "Locales", href: "/locales" },
+  { label: "Inteligencia B2B", href: "/inteligencia", isB2B: true },
 ];
 
 export default function TalosNavbar({ activeSection }: { activeSection?: string }) {
@@ -139,14 +140,17 @@ export default function TalosNavbar({ activeSection }: { activeSection?: string 
                 fontFamily: "Outfit, sans-serif",
                 fontSize: "0.85rem",
                 fontWeight: 700,
-                color: isActive ? "var(--accent-primary)" : "var(--text-primary)",
+                color: s.isB2B ? "var(--accent-primary)" : isActive ? "var(--accent-primary)" : "var(--text-primary)",
                 padding: "0.4rem 0.85rem",
                 borderRadius: "8px",
-                border: isActive ? "1px solid var(--accent-primary)" : "1px solid transparent",
-                background: isActive ? "var(--glass-hover)" : "transparent",
+                border: s.isB2B ? "1px solid rgba(0, 212, 255, 0.4)" : isActive ? "1px solid var(--accent-primary)" : "1px solid transparent",
+                background: s.isB2B ? "rgba(0, 212, 255, 0.08)" : isActive ? "var(--glass-hover)" : "transparent",
                 transition: "all 0.2s ease",
                 letterSpacing: "0.02em",
                 textTransform: "uppercase",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.3rem",
               }}
               onMouseEnter={e => {
                 if (!isActive) {
@@ -157,9 +161,9 @@ export default function TalosNavbar({ activeSection }: { activeSection?: string 
               }}
               onMouseLeave={e => {
                 if (!isActive) {
-                  (e.currentTarget as HTMLAnchorElement).style.color = "var(--text-primary)";
-                  (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "transparent";
+                  (e.currentTarget as HTMLAnchorElement).style.color = s.isB2B ? "var(--accent-primary)" : "var(--text-primary)";
+                  (e.currentTarget as HTMLAnchorElement).style.background = s.isB2B ? "rgba(0, 212, 255, 0.08)" : "transparent";
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = s.isB2B ? "rgba(0, 212, 255, 0.4)" : "transparent";
                 }
               }}>
                 {s.label}
@@ -301,7 +305,7 @@ export default function TalosNavbar({ activeSection }: { activeSection?: string 
         backdropFilter: "blur(24px)",
         borderBottom: menuOpen ? "1px solid var(--glass-border)" : "none",
         padding: menuOpen ? "1.5rem 1.25rem" : "0 1.25rem",
-        maxHeight: menuOpen ? "400px" : "0px",
+        maxHeight: menuOpen ? "520px" : "0px",
         overflow: "hidden",
         transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
         boxShadow: menuOpen ? "0 20px 60px rgba(0,0,0,0.3)" : "none",
@@ -315,13 +319,13 @@ export default function TalosNavbar({ activeSection }: { activeSection?: string 
               style={{
                 textDecoration: "none",
                 fontFamily: "Outfit, sans-serif",
-                fontSize: "1.3rem",
+                fontSize: "1.15rem",
                 fontWeight: 800,
-                color: "var(--heading-color)",
-                padding: "1rem 1.25rem",
+                color: s.isB2B ? "var(--accent-primary)" : "var(--heading-color)",
+                padding: "0.85rem 1.15rem",
                 borderRadius: "12px",
-                border: "1px solid var(--glass-border)",
-                background: "var(--card-bg)",
+                border: s.isB2B ? "1px solid rgba(0,212,255,0.4)" : "1px solid var(--glass-border)",
+                background: s.isB2B ? "rgba(0,212,255,0.06)" : "var(--card-bg)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -338,14 +342,16 @@ export default function TalosNavbar({ activeSection }: { activeSection?: string 
                 (e.currentTarget as HTMLAnchorElement).style.paddingLeft = "1.5rem";
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLAnchorElement).style.color = "var(--heading-color)";
-                (e.currentTarget as HTMLAnchorElement).style.background = "var(--card-bg)";
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--glass-border)";
-                (e.currentTarget as HTMLAnchorElement).style.paddingLeft = "1.25rem";
+                (e.currentTarget as HTMLAnchorElement).style.color = s.isB2B ? "var(--accent-primary)" : "var(--heading-color)";
+                (e.currentTarget as HTMLAnchorElement).style.background = s.isB2B ? "rgba(0,212,255,0.06)" : "var(--card-bg)";
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = s.isB2B ? "rgba(0,212,255,0.4)" : "var(--glass-border)";
+                (e.currentTarget as HTMLAnchorElement).style.paddingLeft = "1.15rem";
               }}
             >
               <span>{s.label}</span>
-              <span style={{ fontSize: "0.9rem", color: "var(--accent-primary)" }}>→</span>
+              <span style={{ fontSize: "0.9rem", color: "var(--accent-primary)" }}>
+                {s.isB2B ? "ACCEDER →" : "→"}
+              </span>
             </Link>
           ))}
 

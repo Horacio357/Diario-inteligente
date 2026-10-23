@@ -113,3 +113,18 @@ model CitizenVote {
   @@index([topic, createdAt])
   @@index([provinceId, createdAt])
 }
+
+model DemoRequest {
+  id           String   @id @default(uuid())
+  name         String
+  email        String
+  organization String
+  role         String?
+  phone        String?
+  district     String?  // PBA, Córdoba, CABA, Santa Fe, Nacional, etc.
+  planInterest String?  // monitoreo | federal | enterprise
+  message      String?
+  status       String   @default("PENDING") // PENDING | CONTACTED | QUALIFIED | CLOSED
+  createdAt    DateTime @default(now())
+}
+

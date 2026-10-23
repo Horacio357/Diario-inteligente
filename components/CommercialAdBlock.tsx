@@ -133,18 +133,40 @@ export default function CommercialAdBlock({ section = "global" }: { section?: st
               Alcanzá a miles de lectores y decisores diarios con banners de alta visibilidad e impacto.
             </p>
 
-            <a
-              href="mailto:publicidad@talos.ar?subject=Consulta%20Espacio%20Publicitario"
-              className="btn-primary"
-              style={{
-                fontSize: "0.78rem",
-                padding: "0.45rem 1.1rem",
-                marginTop: "0.25rem",
-                textDecoration: "none"
-              }}
-            >
-              Comprar Espacio Banners <ExternalLink size={12} />
-            </a>
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+              <a
+                href="/inteligencia"
+                className="btn-primary"
+                style={{
+                  fontSize: "0.78rem",
+                  padding: "0.45rem 1.1rem",
+                  marginTop: "0.25rem",
+                  textDecoration: "none",
+                }}
+              >
+                Talos Inteligencia B2B <ExternalLink size={12} />
+              </a>
+              <a
+                href="mailto:comercial@talosdiario.ar?subject=Consulta%20Espacio%20Publicitario"
+                style={{
+                  fontSize: "0.78rem",
+                  padding: "0.45rem 0.9rem",
+                  marginTop: "0.25rem",
+                  textDecoration: "none",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid var(--glass-border)",
+                  borderRadius: "8px",
+                  color: "var(--heading-color)",
+                  fontFamily: "Outfit, sans-serif",
+                  fontWeight: 700,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.3rem",
+                }}
+              >
+                comercial@talosdiario.ar
+              </a>
+            </div>
           </div>
 
           {/* Bloque Publicitario 2 - Banner Comercial Secundario */}
@@ -170,7 +192,7 @@ export default function CommercialAdBlock({ section = "global" }: { section?: st
                 textTransform: "uppercase",
                 letterSpacing: "0.15em"
               }}>
-                SPONSOR EXCLUSIVO TALOS
+                PATROCINIO INSTITUCIONAL TALOS
               </span>
             </div>
 
@@ -180,11 +202,11 @@ export default function CommercialAdBlock({ section = "global" }: { section?: st
               fontWeight: 800,
               color: "var(--heading-color)"
             }}>
-              Banner Comercial 300 x 250
+              Espacio para Consultoras & Empresas
             </h4>
 
             <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
-              Contacto de Ventas: <b>publicidad@talos.ar</b>
+              Contacto comercial: <b>comercial@talosdiario.ar</b>
             </span>
           </div>
         </>
