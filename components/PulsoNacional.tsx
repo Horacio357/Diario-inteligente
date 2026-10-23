@@ -115,11 +115,24 @@ export default function PulsoNacional({ provinceData, contrastData, onOpenVoteMo
         borderRadius: "12px",
         padding: "1rem 1.1rem",
       }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.7rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.7rem", flexWrap: "wrap", gap: "0.4rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
             <Activity size={12} color="var(--accent-primary)" />
             <span style={{ fontFamily: "Outfit, sans-serif", fontSize: "0.6rem", fontWeight: 700, color: "var(--accent-primary)", textTransform: "uppercase", letterSpacing: "0.2em" }}>
               Pulso Nacional
+            </span>
+            <span style={{
+              fontSize: "0.55rem",
+              background: "rgba(0,212,255,0.08)",
+              color: "var(--accent-primary)",
+              padding: "0.1rem 0.35rem",
+              borderRadius: "4px",
+              border: "1px solid rgba(0,212,255,0.2)",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em"
+            }}>
+              Estimación automatizada
             </span>
           </div>
           <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.6rem", fontFamily: "Outfit, sans-serif", fontWeight: 700, color: "#00e676" }}>
@@ -460,8 +473,32 @@ export default function PulsoNacional({ provinceData, contrastData, onOpenVoteMo
         </div>
       </div>
 
-      <div style={{ fontFamily: "Inter, sans-serif", fontSize: "0.62rem", color: "var(--text-muted)", textAlign: "center" }} suppressHydrationWarning>
-        Datos actualizados · {new Date().toLocaleString("es-AR", { weekday: "short", hour: "2-digit", minute: "2-digit" })}
+      <div style={{
+        fontFamily: "Inter, sans-serif",
+        fontSize: "0.64rem",
+        color: "var(--text-muted)",
+        textAlign: "center",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.2rem",
+        paddingTop: "0.25rem",
+      }} suppressHydrationWarning>
+        <span>Índice sintético territorial · Actualización continua ({new Date().toLocaleString("es-AR", { weekday: "short", hour: "2-digit", minute: "2-digit" })} hs)</span>
+        <div style={{ display: "flex", justifyContent: "center", gap: "0.75rem" }}>
+          <button
+            onClick={() => setShowMethodology(true)}
+            style={{ background: "none", border: "none", color: "var(--accent-primary)", fontSize: "0.64rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}
+          >
+            Descargar informe PDF
+          </button>
+          <span>·</span>
+          <a
+            href="/metodologia"
+            style={{ color: "var(--accent-primary)", textDecoration: "underline" }}
+          >
+            Metodología & Fuentes
+          </a>
+        </div>
       </div>
 
       {/* MODAL DE METODOLOGÍA, TRANSPARENCIA Y DESCARGA PDF */}

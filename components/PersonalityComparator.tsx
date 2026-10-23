@@ -431,11 +431,26 @@ export default function PersonalityComparator() {
         <div style={{ flex: 1 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <h2 style={{ fontFamily: "Outfit", fontSize: "1.2rem", fontWeight: 800 }}>
-                Comparador de Personalidades
-              </h2>
-              <p style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                Compará arquetipos, métricas y percepción territorial
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                <h2 style={{ fontFamily: "Outfit", fontSize: "1.2rem", fontWeight: 800, margin: 0 }}>
+                  Comparador de Personalidades
+                </h2>
+                <span style={{
+                  fontSize: "0.58rem",
+                  background: "rgba(0,212,255,0.08)",
+                  color: "var(--accent-primary)",
+                  padding: "0.15rem 0.45rem",
+                  borderRadius: "4px",
+                  border: "1px solid rgba(0,212,255,0.2)",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em"
+                }}>
+                  Estimación automatizada
+                </span>
+              </div>
+              <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.25rem", marginBottom: 0 }}>
+                Compará arquetipos, métricas y percepción territorial · <a href="/metodologia" style={{ color: "var(--accent-primary)", textDecoration: "underline" }}>Metodología y fuentes</a>
               </p>
             </div>
             {(personA || personB) && (
