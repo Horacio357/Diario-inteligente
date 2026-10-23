@@ -75,12 +75,12 @@ export default function TalosNavbar({ activeSection }: { activeSection?: string 
               width: "40px",
               height: "40px",
               borderRadius: "12px",
-              background: "rgba(0,212,255,0.1)",
+              background: "var(--glass-hover)",
               border: "1px solid var(--accent-primary)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 20px rgba(0,212,255,0.2)",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
               flexShrink: 0,
             }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -143,8 +143,8 @@ export default function TalosNavbar({ activeSection }: { activeSection?: string 
                 color: s.isB2B ? "var(--accent-primary)" : isActive ? "var(--accent-primary)" : "var(--text-primary)",
                 padding: "0.4rem 0.85rem",
                 borderRadius: "8px",
-                border: s.isB2B ? "1px solid rgba(0, 212, 255, 0.4)" : isActive ? "1px solid var(--accent-primary)" : "1px solid transparent",
-                background: s.isB2B ? "rgba(0, 212, 255, 0.08)" : isActive ? "var(--glass-hover)" : "transparent",
+                border: s.isB2B ? "1px solid var(--card-border)" : isActive ? "1px solid var(--accent-primary)" : "1px solid transparent",
+                background: s.isB2B ? "var(--glass-hover)" : isActive ? "var(--glass-hover)" : "transparent",
                 transition: "all 0.2s ease",
                 letterSpacing: "0.02em",
                 textTransform: "uppercase",
@@ -162,8 +162,8 @@ export default function TalosNavbar({ activeSection }: { activeSection?: string 
               onMouseLeave={e => {
                 if (!isActive) {
                   (e.currentTarget as HTMLAnchorElement).style.color = s.isB2B ? "var(--accent-primary)" : "var(--text-primary)";
-                  (e.currentTarget as HTMLAnchorElement).style.background = s.isB2B ? "rgba(0, 212, 255, 0.08)" : "transparent";
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = s.isB2B ? "rgba(0, 212, 255, 0.4)" : "transparent";
+                  (e.currentTarget as HTMLAnchorElement).style.background = s.isB2B ? "var(--glass-hover)" : "transparent";
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = s.isB2B ? "var(--card-border)" : "transparent";
                 }
               }}>
                 {s.label}

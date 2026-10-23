@@ -174,7 +174,7 @@ export default function InteligenciaPage() {
           position: "sticky",
           top: 0,
           zIndex: 100,
-          background: "rgba(10, 14, 26, 0.85)",
+          background: "var(--navbar-bg)",
           backdropFilter: "blur(20px)",
           borderBottom: "1px solid var(--glass-border)",
           padding: "1rem 1.5rem",
@@ -206,7 +206,7 @@ export default function InteligenciaPage() {
                 href="#solicitar-demo"
                 style={{
                   background: "var(--accent-primary)",
-                  color: "#050b18",
+                  color: "#ffffff",
                   padding: "0.45rem 0.9rem",
                   borderRadius: "8px",
                   fontSize: "0.78rem",

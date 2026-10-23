@@ -483,7 +483,7 @@ export default function PulsoNacional({ provinceData, contrastData, onOpenVoteMo
         gap: "0.2rem",
         paddingTop: "0.25rem",
       }} suppressHydrationWarning>
-        <span>Índice sintético territorial · Actualización continua ({new Date().toLocaleString("es-AR", { weekday: "short", hour: "2-digit", minute: "2-digit" })} hs)</span>
+        <span suppressHydrationWarning>Índice sintético territorial · Actualización continua ({new Date().toLocaleString("es-AR", { weekday: "short", hour: "2-digit", minute: "2-digit" })} hs)</span>
         <div style={{ display: "flex", justifyContent: "center", gap: "0.75rem" }}>
           <button
             onClick={() => setShowMethodology(true)}

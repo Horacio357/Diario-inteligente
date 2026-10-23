@@ -94,7 +94,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
   const pages: FlipbookPage[] = useMemo(() => {
     if (articles && articles.length > 0) {
       const mapped = articles.slice(0, 4).map((art, idx) => ({
-        id: art.id || idx + 1,
+        id: idx + 1,
         category: art.category || "Actualidad",
         date: art.publishedAt ? new Date(art.publishedAt).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" }) : "Edición de Hoy",
         title: art.title || "Crónica de Coyuntura Nacional",
@@ -106,7 +106,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
         ],
         imageUrl: art.imageUrl || "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&auto=format&fit=crop&q=80",
         imageCaption: `Foto periodística: Cobertura de ${art.title || "la jornada"}.`,
-        quote: art.summary ? `"${art.summary.slice(0, 90)}..."` : "El monitoreo en tiempo real brinda una perspectiva transparente.",
+        quote: art.summary ? art.summary.replace(/^["«“]+|["»”]+$/g, "").slice(0, 110) + "..." : "El monitoreo en tiempo real brinda una perspectiva transparente.",
         highlights: [
           `✦ Repercusión mediática en tiempo real.`,
           `✦ Sección: ${art.category || "General"}.`,
@@ -135,8 +135,8 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
       setTimeout(() => {
         setFlipPhase("idle");
         setFlipDirection(null);
-      }, 220);
-    }, 220);
+      }, 190);
+    }, 150);
   };
 
   const handlePrev = () => {
@@ -152,8 +152,8 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
       setTimeout(() => {
         setFlipPhase("idle");
         setFlipDirection(null);
-      }, 220);
-    }, 220);
+      }, 190);
+    }, 150);
   };
 
   // Touch Swipe Handlers for Mobile
@@ -185,148 +185,188 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
     <div
       className="flipbook-root"
       style={{
-        background: "var(--card-bg, #0d1528)",
-        border: "1px solid var(--card-border, rgba(0, 212, 255, 0.15))",
-        borderRadius: "16px",
-        padding: "1.25rem",
-        boxShadow: "0 12px 36px rgba(0,0,0,0.25)",
+        borderRadius: "14px",
+        padding: "1.25rem 1.25rem 1.5rem",
         position: "relative",
         overflow: "hidden",
       }}
     >
-      {/* ─── ESTILOS Y ANIMACIONES REALISTAS DE PAPEL DE DIARIO ─── */}
+      {/* ─── ESTILOS DE HOJA DE DIARIO Y TRANSICIÓN SUTIL ─── */}
       <style>{`
-        /* Animaciones 3D de hoja física de diario */
-        @keyframes flipPaperFoldOutNext {
-          0% {
-            transform: rotateY(0deg) skewY(0deg);
-            filter: brightness(1);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-          }
-          50% {
-            transform: rotateY(-40deg) skewY(-2deg) scale(0.98);
-            filter: brightness(0.88);
-            box-shadow: -15px 10px 30px rgba(0,0,0,0.35);
-          }
-          100% {
-            transform: rotateY(-85deg) skewY(-3deg) scale(0.94);
-            filter: brightness(0.65);
-            opacity: 0.1;
-          }
+        /* Variables adaptativas según el tema del diario (Papel por defecto, Claro o Noche) */
+        .flipbook-root {
+          --fb-outer-bg: #ebe4d4;
+          --fb-outer-border: rgba(153, 27, 27, 0.2);
+          --fb-sheet-bg: linear-gradient(90deg, #f9f5eb 0%, #fdfbf7 46%, #f1eadc 50%, #fdfbf7 54%, #f9f5eb 100%);
+          --fb-sheet-border: #d8cfc0;
+          --fb-sheet-shadow:
+            0 1px 3px rgba(28, 25, 23, 0.06),
+            0 4px 0 -1px #f6f1e6,
+            0 4px 0 0 #d5cbb8,
+            0 8px 0 -2px #f1ebde,
+            0 8px 0 -1px #cec3ae,
+            0 12px 24px rgba(28, 25, 23, 0.08);
+          --fb-spine-bg: linear-gradient(90deg, transparent 0%, rgba(28, 25, 23, 0.03) 35%, rgba(28, 25, 23, 0.08) 50%, rgba(28, 25, 23, 0.03) 65%, transparent 100%);
+          --fb-spine-line: rgba(28, 25, 23, 0.09);
+          --fb-box-bg: rgba(153, 27, 27, 0.035);
+          --fb-box-border: rgba(153, 27, 27, 0.22);
+          --fb-photo-bg: #f3ede0;
+          --fb-photo-border: #dfd6c5;
+          --fb-control-bg: rgba(28, 25, 23, 0.04);
+          --fb-dot-inactive: rgba(28, 25, 23, 0.2);
+          --fb-sweep: linear-gradient(90deg, transparent 0%, rgba(28, 25, 23, 0.04) 50%, transparent 100%);
+          background: var(--fb-outer-bg);
+          border: 1px solid var(--fb-outer-border);
+          box-shadow: 0 6px 24px rgba(28, 25, 23, 0.06);
         }
 
-        @keyframes flipPaperFoldInNext {
+        [data-theme="light"] .flipbook-root {
+          --fb-outer-bg: #f1f5f9;
+          --fb-outer-border: rgba(2, 132, 199, 0.18);
+          --fb-sheet-bg: linear-gradient(90deg, #f8fafc 0%, #ffffff 46%, #f1f5f9 50%, #ffffff 54%, #f8fafc 100%);
+          --fb-sheet-border: #cbd5e1;
+          --fb-sheet-shadow:
+            0 1px 3px rgba(15, 23, 42, 0.05),
+            0 4px 0 -1px #f8fafc,
+            0 4px 0 0 #cbd5e1,
+            0 8px 0 -2px #f1f5f9,
+            0 8px 0 -1px #cbd5e1,
+            0 10px 20px rgba(15, 23, 42, 0.06);
+          --fb-spine-bg: linear-gradient(90deg, transparent 0%, rgba(15, 23, 42, 0.04) 50%, transparent 100%);
+          --fb-spine-line: rgba(15, 23, 42, 0.08);
+          --fb-box-bg: rgba(2, 132, 199, 0.04);
+          --fb-box-border: rgba(2, 132, 199, 0.2);
+          --fb-photo-bg: #f1f5f9;
+          --fb-photo-border: #e2e8f0;
+          --fb-control-bg: rgba(15, 23, 42, 0.04);
+          --fb-dot-inactive: rgba(15, 23, 42, 0.2);
+          --fb-sweep: linear-gradient(90deg, transparent 0%, rgba(15, 23, 42, 0.03) 50%, transparent 100%);
+        }
+
+        [data-theme="cyberpunk"] .flipbook-root {
+          --fb-outer-bg: rgba(13, 21, 40, 0.75);
+          --fb-outer-border: rgba(0, 212, 255, 0.15);
+          --fb-sheet-bg: linear-gradient(90deg, #0b1120 0%, #0e172a 46%, #080d1a 50%, #0e172a 54%, #0b1120 100%);
+          --fb-sheet-border: rgba(0, 212, 255, 0.18);
+          --fb-sheet-shadow:
+            0 4px 0 -1px #0b1120,
+            0 4px 0 0 rgba(0, 212, 255, 0.14),
+            0 12px 30px rgba(0, 0, 0, 0.45);
+          --fb-spine-bg: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+          --fb-spine-line: rgba(0, 212, 255, 0.1);
+          --fb-box-bg: rgba(0, 212, 255, 0.04);
+          --fb-box-border: rgba(0, 212, 255, 0.2);
+          --fb-photo-bg: rgba(0, 0, 0, 0.25);
+          --fb-photo-border: rgba(0, 212, 255, 0.15);
+          --fb-control-bg: rgba(255, 255, 255, 0.05);
+          --fb-dot-inactive: rgba(255, 255, 255, 0.2);
+          --fb-sweep: linear-gradient(90deg, transparent 0%, rgba(0, 212, 255, 0.05) 50%, transparent 100%);
+        }
+
+        /* Transición sutil y orgánica de hoja de papel */
+        @keyframes flipPaperSubtleOutNext {
           0% {
-            transform: rotateY(85deg) skewY(3deg) scale(0.94);
-            filter: brightness(0.65);
-            opacity: 0.1;
-          }
-          50% {
-            transform: rotateY(35deg) skewY(2deg) scale(0.98);
-            filter: brightness(0.9);
-            opacity: 0.9;
-          }
-          100% {
-            transform: rotateY(0deg) skewY(0deg) scale(1);
-            filter: brightness(1);
+            transform: rotateY(0deg) translateX(0);
             opacity: 1;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-          }
-        }
-
-        @keyframes flipPaperFoldOutPrev {
-          0% {
-            transform: rotateY(0deg) skewY(0deg);
-            filter: brightness(1);
-          }
-          50% {
-            transform: rotateY(40deg) skewY(2deg) scale(0.98);
-            filter: brightness(0.88);
-            box-shadow: 15px 10px 30px rgba(0,0,0,0.35);
           }
           100% {
-            transform: rotateY(85deg) skewY(3deg) scale(0.94);
-            filter: brightness(0.65);
-            opacity: 0.1;
+            transform: rotateY(-5deg) translateX(-10px) scale(0.995);
+            opacity: 0.35;
           }
         }
 
-        @keyframes flipPaperFoldInPrev {
+        @keyframes flipPaperSubtleInNext {
           0% {
-            transform: rotateY(-85deg) skewY(-3deg) scale(0.94);
-            filter: brightness(0.65);
-            opacity: 0.1;
-          }
-          50% {
-            transform: rotateY(-35deg) skewY(-2deg) scale(0.98);
-            filter: brightness(0.9);
-            opacity: 0.9;
-          }
-          100% {
-            transform: rotateY(0deg) skewY(0deg) scale(1);
-            filter: brightness(1);
-            opacity: 1;
-          }
-        }
-
-        /* Brillo de curvatura cilíndrica de papel */
-        @keyframes paperCurlShineSweep {
-          0% {
-            opacity: 0;
-            transform: translateX(-100%);
-          }
-          50% {
+            transform: rotateY(5deg) translateX(10px) scale(0.995);
             opacity: 0.35;
           }
           100% {
+            transform: rotateY(0deg) translateX(0) scale(1);
+            opacity: 1;
+          }
+        }
+
+        @keyframes flipPaperSubtleOutPrev {
+          0% {
+            transform: rotateY(0deg) translateX(0);
+            opacity: 1;
+          }
+          100% {
+            transform: rotateY(5deg) translateX(10px) scale(0.995);
+            opacity: 0.35;
+          }
+        }
+
+        @keyframes flipPaperSubtleInPrev {
+          0% {
+            transform: rotateY(-5deg) translateX(-10px) scale(0.995);
+            opacity: 0.35;
+          }
+          100% {
+            transform: rotateY(0deg) translateX(0) scale(1);
+            opacity: 1;
+          }
+        }
+
+        /* Sombra suave de barrido al pasar la hoja */
+        @keyframes paperCurlShineSweep {
+          0% {
             opacity: 0;
-            transform: translateX(100%);
+            transform: translateX(-60%);
+          }
+          50% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+            transform: translateX(60%);
           }
         }
 
         .flip-anim-next-out {
-          animation: flipPaperFoldOutNext 0.22s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+          animation: flipPaperSubtleOutNext 0.15s ease-out forwards;
           transform-origin: left center;
         }
         .flip-anim-next-in {
-          animation: flipPaperFoldInNext 0.22s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+          animation: flipPaperSubtleInNext 0.19s cubic-bezier(0.22, 1, 0.36, 1) forwards;
           transform-origin: left center;
         }
         .flip-anim-prev-out {
-          animation: flipPaperFoldOutPrev 0.22s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+          animation: flipPaperSubtleOutPrev 0.15s ease-out forwards;
           transform-origin: right center;
         }
         .flip-anim-prev-in {
-          animation: flipPaperFoldInPrev 0.22s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+          animation: flipPaperSubtleInPrev 0.19s cubic-bezier(0.22, 1, 0.36, 1) forwards;
           transform-origin: right center;
         }
 
-        /* Dog-ear corner fold en la hoja */
+        /* Dog-ear corner fold sutil en la esquina inferior derecha */
         .dog-ear-corner {
           position: absolute;
           bottom: 0;
           right: 0;
-          width: 0;
-          height: 0;
-          border-style: solid;
-          border-width: 0 0 28px 28px;
-          border-color: transparent transparent var(--accent-primary) transparent;
-          opacity: 0.4;
+          width: 24px;
+          height: 24px;
+          background: linear-gradient(135deg, transparent 50%, rgba(28, 25, 23, 0.08) 50%);
+          border-top: 1px solid var(--fb-sheet-border);
+          border-left: 1px solid var(--fb-sheet-border);
+          border-top-left-radius: 4px;
+          box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.05);
           cursor: pointer;
           transition: all 0.2s ease;
           z-index: 10;
         }
         .dog-ear-corner:hover {
-          border-width: 0 0 38px 38px;
-          opacity: 0.9;
-          filter: drop-shadow(-3px -3px 5px rgba(0,0,0,0.5));
+          width: 32px;
+          height: 32px;
+          box-shadow: -3px -3px 6px rgba(0, 0, 0, 0.1);
         }
 
         /* Responsive Layout: Desktop vs Mobile */
         .flipbook-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 2rem;
+          gap: 2.25rem;
           position: relative;
           z-index: 2;
         }
@@ -342,11 +382,11 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
 
         @media (max-width: 820px) {
           .flipbook-root {
-            padding: 0.85rem !important;
+            padding: 0.85rem 0.85rem 1.15rem !important;
           }
           .flipbook-paper-container {
-            padding: 1.15rem 0.9rem !important;
-            border-radius: 10px !important;
+            padding: 1.15rem 0.95rem !important;
+            border-radius: 8px !important;
           }
           .flipbook-grid {
             grid-template-columns: 1fr !important;
@@ -408,9 +448,9 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
               fontSize: "0.72rem",
               fontFamily: "Outfit, sans-serif",
               fontWeight: 700,
-              color: "var(--text-muted)",
-              background: "rgba(255,255,255,0.03)",
-              padding: "0.25rem 0.6rem",
+              color: "var(--text-secondary)",
+              background: "var(--fb-control-bg)",
+              padding: "0.25rem 0.65rem",
               borderRadius: "6px",
               border: "1px solid var(--glass-border)",
             }}
@@ -425,7 +465,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
               title="Página anterior (Deslizar hacia la derecha)"
               aria-label="Página anterior"
               style={{
-                background: "rgba(255,255,255,0.05)",
+                background: "var(--fb-control-bg)",
                 border: "1px solid var(--glass-border)",
                 borderRadius: "8px",
                 width: "36px",
@@ -435,7 +475,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
                 justifyContent: "center",
                 color: currentPageIndex === 0 ? "var(--text-muted)" : "var(--accent-primary)",
                 cursor: currentPageIndex === 0 ? "not-allowed" : "pointer",
-                opacity: currentPageIndex === 0 ? 0.35 : 1,
+                opacity: currentPageIndex === 0 ? 0.4 : 1,
                 transition: "all 0.2s ease",
               }}
             >
@@ -447,7 +487,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
               title="Página siguiente (Deslizar hacia la izquierda)"
               aria-label="Página siguiente"
               style={{
-                background: "rgba(255,255,255,0.05)",
+                background: "var(--fb-control-bg)",
                 border: "1px solid var(--glass-border)",
                 borderRadius: "8px",
                 width: "36px",
@@ -457,7 +497,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
                 justifyContent: "center",
                 color: currentPageIndex === pages.length - 1 ? "var(--text-muted)" : "var(--accent-primary)",
                 cursor: currentPageIndex === pages.length - 1 ? "not-allowed" : "pointer",
-                opacity: currentPageIndex === pages.length - 1 ? 0.35 : 1,
+                opacity: currentPageIndex === pages.length - 1 ? 0.4 : 1,
                 transition: "all 0.2s ease",
               }}
             >
@@ -474,7 +514,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
           display: "flex",
           gap: "0.35rem",
           marginBottom: "0.85rem",
-          background: "rgba(255,255,255,0.02)",
+          background: "var(--fb-control-bg)",
           padding: "0.25rem",
           borderRadius: "8px",
           border: "1px solid var(--glass-border)",
@@ -485,7 +525,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
           style={{
             flex: 1,
             background: mobileSection === "all" ? "var(--accent-primary)" : "transparent",
-            color: mobileSection === "all" ? "#000000" : "var(--text-secondary)",
+            color: mobileSection === "all" ? "#ffffff" : "var(--text-secondary)",
             border: "none",
             borderRadius: "6px",
             padding: "0.35rem 0.4rem",
@@ -503,7 +543,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
           style={{
             flex: 1,
             background: mobileSection === "left" ? "var(--accent-primary)" : "transparent",
-            color: mobileSection === "left" ? "#000000" : "var(--text-secondary)",
+            color: mobileSection === "left" ? "#ffffff" : "var(--text-secondary)",
             border: "none",
             borderRadius: "6px",
             padding: "0.35rem 0.4rem",
@@ -521,7 +561,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
           style={{
             flex: 1,
             background: mobileSection === "right" ? "var(--accent-primary)" : "transparent",
-            color: mobileSection === "right" ? "#000000" : "var(--text-secondary)",
+            color: mobileSection === "right" ? "#ffffff" : "var(--text-secondary)",
             border: "none",
             borderRadius: "6px",
             padding: "0.35rem 0.4rem",
@@ -536,10 +576,10 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
         </button>
       </div>
 
-      {/* ─── HOJA DE PAPEL CON EFECTO DE VUELTA REALISTA (3D PERSPECTIVE) ─── */}
+      {/* ─── HOJA DE PAPEL CON EFECTO DE VUELTA SUTIL ─── */}
       <div
         style={{
-          perspective: "1600px",
+          perspective: "2000px",
           position: "relative",
           minHeight: "420px",
         }}
@@ -559,24 +599,23 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
               : ""
           }`}
           style={{
-            background: "linear-gradient(135deg, #0b1120 0%, #0d1528 50%, #0a0f1d 100%)",
-            border: "1px solid rgba(0, 212, 255, 0.18)",
-            borderRadius: "12px",
-            padding: "1.75rem 2rem",
-            boxShadow: "inset 0 0 50px rgba(0,0,0,0.5), 0 10px 30px rgba(0,0,0,0.3)",
+            background: "var(--fb-sheet-bg)",
+            border: "1px solid var(--fb-sheet-border)",
+            borderRadius: "8px",
+            padding: "1.85rem 2.15rem",
+            boxShadow: "var(--fb-sheet-shadow)",
             position: "relative",
             overflow: "hidden",
-            transition: "filter 0.2s ease",
           }}
         >
-          {/* Brillo de reflejo de papel al pasar la hoja */}
+          {/* Barrido sutil de luz/sombra al pasar la hoja */}
           {flipPhase !== "idle" && (
             <div
               style={{
                 position: "absolute",
                 inset: 0,
-                background: "linear-gradient(90deg, transparent 0%, rgba(0, 212, 255, 0.08) 50%, transparent 100%)",
-                animation: "paperCurlShineSweep 0.22s ease-out forwards",
+                background: "var(--fb-sweep)",
+                animation: "paperCurlShineSweep 0.18s ease-out forwards",
                 pointerEvents: "none",
                 zIndex: 20,
               }}
@@ -613,12 +652,12 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
                   <span
                     style={{
                       fontFamily: "Georgia, serif",
-                      fontSize: "0.7rem",
+                      fontSize: "0.72rem",
                       fontStyle: "italic",
                       color: "var(--text-muted)",
                     }}
                   >
-                    Pliego #{page.id}
+                    Pliego Nº 0{currentPageIndex + 1}
                   </span>
                 </div>
 
@@ -700,9 +739,9 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
                     style={{
                       marginTop: "auto",
                       padding: "0.75rem 1rem",
-                      background: "rgba(0, 212, 255, 0.03)",
-                      borderTop: "1px dashed rgba(0, 212, 255, 0.25)",
-                      borderBottom: "1px dashed rgba(0, 212, 255, 0.25)",
+                      background: "var(--fb-box-bg)",
+                      borderTop: "1px dashed var(--fb-box-border)",
+                      borderBottom: "1px dashed var(--fb-box-border)",
                       textAlign: "center",
                       fontFamily: "Georgia, serif",
                       fontStyle: "italic",
@@ -711,7 +750,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
                       lineHeight: 1.45,
                     }}
                   >
-                    "{page.quote}"
+                    «{page.quote}»
                   </blockquote>
                 )}
               </div>
@@ -758,11 +797,11 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
                 {page.imageUrl && (
                   <div
                     style={{
-                      borderRadius: "8px",
+                      borderRadius: "6px",
                       overflow: "hidden",
-                      border: "1px solid var(--glass-border)",
-                      background: "rgba(0,0,0,0.2)",
-                      padding: "0.3rem",
+                      border: "1px solid var(--fb-photo-border)",
+                      background: "var(--fb-photo-bg)",
+                      padding: "0.35rem",
                     }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -773,8 +812,8 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
                         width: "100%",
                         height: "170px",
                         objectFit: "cover",
-                        borderRadius: "6px",
-                        filter: "contrast(1.05) saturate(0.9)",
+                        borderRadius: "4px",
+                        filter: "contrast(1.03) saturate(0.92)",
                       }}
                     />
                     {page.imageCaption && (
@@ -815,9 +854,9 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
                   <div
                     style={{
                       marginTop: "auto",
-                      background: "rgba(0, 212, 255, 0.04)",
-                      border: "1px solid rgba(0, 212, 255, 0.2)",
-                      borderRadius: "8px",
+                      background: "var(--fb-box-bg)",
+                      border: "1px solid var(--fb-box-border)",
+                      borderRadius: "6px",
                       padding: "0.75rem 0.9rem",
                     }}
                   >
@@ -855,7 +894,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
             )}
           </div>
 
-          {/* Sombra de plegado central estilo libro (SOLO visible en Desktop, oculta en móvil) */}
+          {/* Sombra de plegado central estilo pliego de diario (SOLO visible en Desktop, oculta en móvil) */}
           <div
             className="flipbook-spine"
             style={{
@@ -863,13 +902,24 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
               top: 0,
               bottom: 0,
               left: "50%",
-              width: "48px",
+              width: "44px",
               transform: "translateX(-50%)",
-              background: "linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.45) 50%, transparent 100%)",
+              background: "var(--fb-spine-bg)",
               pointerEvents: "none",
               zIndex: 3,
             }}
-          />
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: "1rem",
+                bottom: "1rem",
+                left: "50%",
+                width: "1px",
+                background: "var(--fb-spine-line)",
+              }}
+            />
+          </div>
 
           {/* Punta de hoja doblada interactiva (Dog-ear) */}
           {currentPageIndex < pages.length - 1 && (
@@ -888,7 +938,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginTop: "1rem",
+          marginTop: "1.1rem",
           paddingTop: "0.75rem",
           borderTop: "1px solid var(--glass-border)",
           flexWrap: "wrap",
@@ -934,7 +984,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
                 width: idx === currentPageIndex ? "18px" : "8px",
                 height: "8px",
                 borderRadius: "4px",
-                background: idx === currentPageIndex ? "var(--accent-primary)" : "rgba(255,255,255,0.2)",
+                background: idx === currentPageIndex ? "var(--accent-primary)" : "var(--fb-dot-inactive)",
                 border: "none",
                 cursor: "pointer",
                 padding: 0,

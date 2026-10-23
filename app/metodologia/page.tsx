@@ -46,7 +46,7 @@ export default function MetodologiaPage() {
           position: "sticky",
           top: 0,
           zIndex: 100,
-          background: "rgba(10, 14, 26, 0.85)",
+          background: "var(--navbar-bg)",
           backdropFilter: "blur(20px)",
           borderBottom: "1px solid var(--glass-border)",
           padding: "1rem 1.5rem"
