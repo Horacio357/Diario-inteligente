@@ -1,93 +1,82 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-
-const mockFinanceData = [
-  { symbol: "DÓLAR BLUE", value: "$1.400,00", change: "+1.2%", trend: "up" },
-  { symbol: "RIESGO PAÍS", value: "1.450 pts", change: "-2.1%", trend: "down" },
-  { symbol: "MERVAL", value: "1.250.000", change: "+0.5%", trend: "up" },
-  { symbol: "BITCOIN", value: "US$ 64.200", change: "-1.8%", trend: "down" },
-  { symbol: "INFLACIÓN (EST.)", value: "4.5%", change: "0.0%", trend: "neutral" },
-];
+import React, { useState, useEffect } from "react";
+import { CANONICAL_ECONOMIC_FALLBACK, EconomicIndicator } from "@/lib/economicData";
 
 export default function FinanceTicker() {
-  const [items, setItems] = useState(mockFinanceData);
+  const [indicators, setIndicators] = useState<EconomicIndicator[]>(CANONICAL_ECONOMIC_FALLBACK);
+  const [lastUpdate, setLastUpdate] = useState<string>("");
 
   useEffect(() => {
-    async function fetchRiesgoPais() {
+    async function fetchIndicators() {
       try {
-        const res = await fetch("/api/riesgo-pais");
+        const res = await fetch("/api/indicadores");
         if (res.ok) {
           const json = await res.json();
-          if (json && json.data) {
-            const val = json.data.ultimo;
-            const variation = json.data.variacion || 0;
-            const trend = json.data.tendencia || "neutro";
-            
-            setItems(prev => prev.map(item => {
-              if (item.symbol === "RIESGO PAÍS") {
-                const trendMapped = trend === "alza" ? "up" : trend === "baja" ? "down" : "neutral";
-                const changeStr = variation >= 0 ? `+${variation}%` : `${variation}%`;
-                return {
-                  ...item,
-                  value: `${val} pts`,
-                  change: changeStr,
-                  trend: trendMapped
-                };
-              }
-              return item;
-            }));
+          if (json && json.indicators && Array.isArray(json.indicators)) {
+            setIndicators(json.indicators);
+            if (json.timestamp) {
+              const d = new Date(json.timestamp);
+              setLastUpdate(d.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }));
+            }
           }
         }
       } catch (err) {
-        console.error("Error fetching live Riesgo Pais:", err);
+        console.warn("Usando datos canónicos para FinanceTicker:", err);
       }
     }
-    fetchRiesgoPais();
-  }, []);
 
-  useEffect(() => {
-    // Simulamos una actualización en tiempo real del dólar blue cada 30 segundos
-    const interval = setInterval(() => {
-      setItems(prev => prev.map(item => {
-        if (item.symbol === "DÓLAR BLUE") {
-          return {
-            ...item,
-            value: `$1.40${Math.floor(Math.random() * 10)},00`,
-            change: `${(Math.random() * 2 - 1).toFixed(1)}%`,
-            trend: Math.random() > 0.5 ? "up" : "down"
-          };
-        }
-        return item;
-      }));
-    }, 30000);
+    fetchIndicators();
+    // Actualizar de manera controlada cada 5 minutos
+    const interval = setInterval(fetchIndicators, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div style={{
-      width: "100%",
-      background: "var(--ticker-bg)",
-      borderBottom: "1px solid var(--glass-border)",
-      fontSize: "0.78rem",
-      fontFamily: "monospace",
-      display: "flex",
-      overflow: "hidden",
-      whiteSpace: "nowrap",
-      height: "32px",
-      alignItems: "center",
-      color: "var(--ticker-text)"
-    }}>
-      <div className="news-ticker-content" style={{ paddingLeft: "100px", display: "flex", gap: "3rem" }}>
-        {[...items, ...items, ...items].map((item, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span style={{ fontWeight: 700, color: "var(--text-muted)" }}>{item.symbol}</span>
-            <span style={{ color: "var(--ticker-text)" }}>{item.value}</span>
-            <span style={{
-              color: item.trend === 'up' ? '#00e676' : item.trend === 'down' ? '#ff1744' : 'var(--text-muted)'
-            }}>
+    <div
+      style={{
+        width: "100%",
+        background: "var(--ticker-bg, #0b1120)",
+        borderBottom: "1px solid var(--glass-border, rgba(0, 212, 255, 0.12))",
+        fontSize: "0.74rem",
+        fontFamily: "'SF Mono', Monaco, Consolas, 'Liberation Mono', monospace",
+        display: "flex",
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        height: "30px",
+        alignItems: "center",
+        color: "var(--ticker-text, #f1f5f9)",
+      }}
+    >
+      <div
+        className="news-ticker-content"
+        style={{ paddingLeft: "80px", display: "flex", gap: "2.8rem" }}
+      >
+        {[...indicators, ...indicators, ...indicators].map((item, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+            <span style={{ fontWeight: 700, color: "var(--text-muted, #94a3b8)", fontSize: "0.7rem" }}>
+              {item.symbol}
+            </span>
+            <span style={{ color: "var(--heading-color, #ffffff)", fontWeight: 600 }}>
+              {item.value}
+            </span>
+            <span
+              style={{
+                fontSize: "0.68rem",
+                fontWeight: 700,
+                color:
+                  item.trend === "up"
+                    ? "#00e676"
+                    : item.trend === "down"
+                    ? "#ff1744"
+                    : "var(--text-muted, #94a3b8)",
+              }}
+            >
               {item.change}
-              {item.trend === 'up' ? ' ▲' : item.trend === 'down' ? ' ▼' : ' ▬'}
+              {item.trend === "up" ? " ▲" : item.trend === "down" ? " ▼" : " ▬"}
+            </span>
+            <span style={{ fontSize: "0.58rem", color: "rgba(148, 163, 184, 0.5)", marginLeft: "0.15rem" }}>
+              ({item.source.split(" ")[0]})
             </span>
           </div>
         ))}

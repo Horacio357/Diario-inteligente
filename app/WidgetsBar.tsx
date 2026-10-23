@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Cloud, Sun, CloudRain, TrendingUp, TrendingDown, Minus, Search, Cpu, Plane } from "lucide-react";
+import { Cloud, Sun, CloudRain, TrendingUp, TrendingDown, Minus, Search, Cpu, Activity } from "lucide-react";
+import { CANONICAL_ECONOMIC_FALLBACK, EconomicIndicator } from "@/lib/economicData";
+import { MOCK_PROVINCE_SENTIMENTS } from "@/lib/types";
 
 // ─── CLIMA ──────────────────────────────────────────────────────────────────
 function WeatherWidget() {
@@ -49,26 +51,29 @@ function WeatherWidget() {
   );
 }
 
-// ─── ECONOMÍA ───────────────────────────────────────────────────────────────
+// ─── ECONOMÍA UNIFICADA ─────────────────────────────────────────────────────
 function EconomyWidget() {
-  const [rp, setRp] = useState<{ value: string; change: number } | null>(null);
-  const [dolar, setDolar] = useState({ value: "$ 1.400", change: 0.5 });
+  const [indicators, setIndicators] = useState<EconomicIndicator[]>(CANONICAL_ECONOMIC_FALLBACK);
 
   useEffect(() => {
-    fetch("/api/riesgo-pais")
+    fetch("/api/indicadores")
       .then(r => r.json())
       .then(d => {
-        if (d?.data) {
-          setRp({ value: `${d.data.ultimo} pts`, change: parseFloat(d.data.variacion ?? 0) });
+        if (d?.indicators && Array.isArray(d.indicators)) {
+          setIndicators(d.indicators);
         }
       })
       .catch(() => {});
   }, []);
 
+  const blue = indicators.find(i => i.id === "dolar-blue") || CANONICAL_ECONOMIC_FALLBACK[0];
+  const riesgo = indicators.find(i => i.id === "riesgo-pais") || CANONICAL_ECONOMIC_FALLBACK[3];
+  const ipc = indicators.find(i => i.id === "inflacion-mensual") || CANONICAL_ECONOMIC_FALLBACK[5];
+
   const stats = [
-    { label: "Dólar Blue", value: dolar.value, change: dolar.change },
-    { label: "Riesgo País", value: rp?.value ?? "...", change: rp?.change ?? 0 },
-    { label: "Inflación Est.", value: "4.5%", change: -0.3 },
+    { label: "Dólar Blue", value: blue.value, change: blue.change, trend: blue.trend },
+    { label: "Riesgo País", value: riesgo.value, change: riesgo.change, trend: riesgo.trend },
+    { label: "IPC Mensual", value: ipc.value, change: "(INDEC)", trend: "neutral" as const },
   ];
 
   return (
@@ -84,11 +89,11 @@ function EconomyWidget() {
             </span>
             <span style={{
               fontSize: "0.65rem", fontWeight: 700, fontFamily: "Outfit, sans-serif",
-              color: s.change > 0 ? "#00e676" : s.change < 0 ? "#ff1744" : "#ffc400",
+              color: s.trend === "up" ? "#00e676" : s.trend === "down" ? "#ff1744" : "var(--text-muted)",
               display: "flex", alignItems: "center", gap: "1px",
             }}>
-              {s.change > 0 ? <TrendingUp size={9} /> : s.change < 0 ? <TrendingDown size={9} /> : <Minus size={9} />}
-              {s.change > 0 ? "+" : ""}{s.change}%
+              {s.trend === "up" ? <TrendingUp size={9} /> : s.trend === "down" ? <TrendingDown size={9} /> : <Minus size={9} />}
+              {s.change}
             </span>
           </div>
         </div>
@@ -186,53 +191,57 @@ function QuickAnalysisWidget() {
   );
 }
 
-// ─── WIDGET VUELOS ──────────────────────────────────────────────────────────
-function FlightsWidget() {
-  const flights = [
-    { from: "EZE", to: "MIA", time: "23:50", status: "A tiempo", statusColor: "#00e676" },
-    { from: "AEP", to: "COR", time: "07:15", status: "Demorado", statusColor: "#ffc400" },
-    { from: "EZE", to: "SCL", time: "08:40", status: "A tiempo", statusColor: "#00e676" },
-  ];
+// ─── WIDGET ÁNIMO SOCIAL ───────────────────────────────────────────────────
+function SocialPulseWidget() {
+  const values = Object.values(MOCK_PROVINCE_SENTIMENTS);
+  const avg = values.reduce((a, b) => a + b.sentiment, 0) / values.length;
+  const positive = values.filter(p => p.sentiment > 0.05).length;
+  const negative = values.filter(p => p.sentiment < -0.05).length;
+  const neutral = 24 - positive - negative;
+  const score100 = Math.round((avg + 1) * 50);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem", height: "100%" }}>
-      {flights.map((f, i) => (
-        <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <div style={{ flex: 1 }}>
-            <span style={{ fontFamily: "Outfit, sans-serif", fontSize: "0.85rem", fontWeight: 800, color: "var(--heading-color)" }}>
-              {f.from}
-            </span>
-            <span style={{ color: "var(--text-muted)", margin: "0 0.3rem", fontSize: "0.75rem" }}>→</span>
-            <span style={{ fontFamily: "Outfit, sans-serif", fontSize: "0.85rem", fontWeight: 800, color: "var(--heading-color)" }}>
-              {f.to}
-            </span>
+    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", gap: "0.5rem" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+        <div>
+          <div style={{ fontFamily: "Outfit, sans-serif", fontSize: "1.7rem", fontWeight: 900, color: "var(--heading-color)", lineHeight: 1 }}>
+            {score100}<span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 500 }}>/100</span>
           </div>
-          <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.72rem", color: "var(--text-muted)" }}>
-            {f.time}
-          </span>
-          <span style={{
-            fontSize: "0.6rem", fontWeight: 700, fontFamily: "Outfit, sans-serif",
-            color: f.statusColor,
-            background: f.statusColor + "18",
-            border: `1px solid ${f.statusColor}40`,
-            padding: "0.15rem 0.5rem",
-            borderRadius: "100px",
-          }}>
-            {f.status}
-          </span>
+          <div style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontFamily: "Inter, sans-serif", marginTop: "2px" }}>
+            Promedio 24 distritos
+          </div>
         </div>
-      ))}
-      <a href="#" style={{
+        <span style={{
+          fontSize: "0.65rem",
+          fontWeight: 700,
+          fontFamily: "Outfit, sans-serif",
+          color: avg >= 0 ? "#00e676" : "#ff1744",
+          background: avg >= 0 ? "rgba(0,230,118,0.12)" : "rgba(255,23,68,0.12)",
+          padding: "0.2rem 0.5rem",
+          borderRadius: "100px",
+          border: `1px solid ${avg >= 0 ? "rgba(0,230,118,0.3)" : "rgba(255,23,68,0.3)"}`
+        }}>
+          {avg >= 0 ? "Favorable +" : "Tensión −"}
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: "0.4rem", fontSize: "0.68rem", fontFamily: "Inter, sans-serif" }}>
+        <span style={{ color: "#00e676" }}>🟢 {positive} fav.</span>
+        <span style={{ color: "#ffc400" }}>🟡 {neutral} neut.</span>
+        <span style={{ color: "#ff1744" }}>🔴 {negative} tens.</span>
+      </div>
+
+      <a href="#pulso-nacional" style={{
         fontSize: "0.65rem",
         color: "var(--accent-primary)",
         fontFamily: "Outfit, sans-serif",
-        fontWeight: 600,
+        fontWeight: 700,
         textDecoration: "none",
         textTransform: "uppercase",
         letterSpacing: "0.1em",
-        marginTop: "auto",
+        marginTop: "auto"
       }}>
-        Ver todos los vuelos →
+        Ver mapa federal →
       </a>
     </div>
   );
@@ -259,15 +268,15 @@ export default function WidgetsBar() {
       id: "analisis",
       icon: <Cpu size={14} color="var(--accent-primary)" />,
       label: "Análisis IA",
-      sublabel: "Perfil rápido de figura pública",
+      sublabel: "Perfil de figura pública",
       content: <QuickAnalysisWidget />,
     },
     {
-      id: "vuelos",
-      icon: <Plane size={14} color="var(--accent-primary)" />,
-      label: "Vuelos",
-      sublabel: "Estado en tiempo real",
-      content: <FlightsWidget />,
+      id: "pulso",
+      icon: <Activity size={14} color="var(--accent-primary)" />,
+      label: "Ánimo Social",
+      sublabel: "Pulso 24 provincias",
+      content: <SocialPulseWidget />,
     },
   ];
 

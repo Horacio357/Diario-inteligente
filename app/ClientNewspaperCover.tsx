@@ -19,6 +19,7 @@ import MatrizImpactoEconomico from "@/components/MatrizImpactoEconomico";
 import NewsletterBox from "@/components/NewsletterBox";
 import CitizenOpinionBox from "@/components/CitizenOpinionBox";
 import CitizenVoteModal from "@/components/CitizenVoteModal";
+import MarketIndicatorsBox from "@/components/MarketIndicatorsBox";
 
 function sentimentDot(s: number) {
   if (s > 0.2) return { color: "#00e676", label: "+" };
@@ -503,44 +504,8 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
             </div>
           </div>
 
-          {/* Indicadores Financieros & Mercado */}
-          <div className="glass-card" style={{
-            padding: "1.25rem",
-            background: "var(--card-bg)",
-            border: "1px solid var(--glass-border)",
-            borderRadius: "16px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.65rem"
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              <TrendingUp size={14} color="var(--accent-primary)" />
-              <span style={{ fontSize: "0.62rem", fontFamily: "Outfit, sans-serif", fontWeight: 800, color: "var(--accent-primary)", textTransform: "uppercase", letterSpacing: "0.15em" }}>
-                INDICADORES DE MERCADO
-              </span>
-            </div>
-            <h4 style={{ fontFamily: "Merriweather, Georgia, serif", fontSize: "0.92rem", fontWeight: 800, color: "var(--heading-color)" }}>
-              Cotizaciones & Riesgo País
-            </h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem", fontSize: "0.75rem", fontFamily: "Merriweather, Georgia, serif" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed var(--glass-border)", paddingBottom: "0.3rem" }}>
-                <span style={{ color: "var(--text-secondary)" }}>Dólar Oficial:</span>
-                <b style={{ color: "var(--heading-color)" }}>$1.045,50 <span style={{ color: "#00e676", fontSize: "0.68rem" }}>+0.2%</span></b>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed var(--glass-border)", paddingBottom: "0.3rem" }}>
-                <span style={{ color: "var(--text-secondary)" }}>Dólar Blue:</span>
-                <b style={{ color: "var(--heading-color)" }}>$1.385,00 <span style={{ color: "#ff1744", fontSize: "0.68rem" }}>-0.5%</span></b>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px dashed var(--glass-border)", paddingBottom: "0.3rem" }}>
-                <span style={{ color: "var(--text-secondary)" }}>Riesgo País (EMBI):</span>
-                <b style={{ color: "var(--heading-color)" }}>1.240 pts <span style={{ color: "#00e676", fontSize: "0.68rem" }}>-12 pts</span></b>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--text-secondary)" }}>S&P Merval:</span>
-                <b style={{ color: "var(--heading-color)" }}>1.840.500 <span style={{ color: "#00e676", fontSize: "0.68rem" }}>+1.4%</span></b>
-              </div>
-            </div>
-          </div>
+          {/* Indicadores Financieros & Mercado Unificados */}
+          <MarketIndicatorsBox />
 
           {/* Anuncio Comercial Ventas */}
           <div className="glass-card" style={{
