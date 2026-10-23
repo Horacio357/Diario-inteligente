@@ -9,8 +9,6 @@ import { MOCK_PROVINCE_SENTIMENTS } from "@/lib/types";
 import WidgetsBar from "./WidgetsBar";
 import PulsoNacional from "@/components/PulsoNacional";
 import NewspaperFlipbook from "@/components/NewspaperFlipbook";
-import GuestEditorialColumn from "@/components/GuestEditorialColumn";
-import WorldRadioPlayer from "@/components/WorldRadioPlayer";
 import PersonalityComparator from "@/components/PersonalityComparator";
 import SponsorTickerBar from "@/components/SponsorTickerBar";
 import IAConceptAnalyzer from "@/components/IAConceptAnalyzer";
@@ -307,23 +305,9 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
         )}
       </div>
 
-      {/* ─── BLOQUE CENTRO: DIARIO INTERACTIVO (FLIPBOOK) + COLUMNA DE INVITADOS & RADIO MUNDIAL ─── */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
-        gap: "1.5rem",
-        alignItems: "start",
-      }}>
-        {/* Lado izquierdo: Lector estilo libro impreso */}
-        <div style={{ minWidth: 0, flex: 2 }}>
-          <NewspaperFlipbook articles={editorialArticles} />
-        </div>
-
-        {/* Lado derecho (Escritorio): Columna de Invitados + Sintonizador de Radio Mundial en simultáneo */}
-        <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <GuestEditorialColumn />
-          <WorldRadioPlayer />
-        </div>
+      {/* ─── BLOQUE CENTRO: DIARIO INTERACTIVO (EDICIÓN IMPRESA DIGITALIZADA) ─── */}
+      <div style={{ width: "100%" }}>
+        <NewspaperFlipbook articles={editorialArticles} />
       </div>
 
       {/* ─── CAJA DE OPINIÓN CIUDADANA (TERMÓMETRO DE LECTORES) ─── */}

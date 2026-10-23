@@ -12,10 +12,10 @@ interface SponsorItem {
 }
 
 const DEFAULT_SPONSORS: SponsorItem[] = [
-  { id: "1", name: "Mercado Pago", message: "⚡ Pagá en cuotas con Mercado Pago y disfrutá de beneficios exclusivos." },
-  { id: "2", name: "Proyecto Talos", message: "✦ Espacio para patrocinadores e institucionales. Contacto: publicidad@talos.ar" },
-  { id: "3", name: "Cerveza Quilmes", message: "⚽ Sponsor Oficial del Fútbol Argentino y del Pulso Nacional." },
-  { id: "4", name: "BBVA Argentina", message: "🏦 Sumá puntos con tus consumos e invirtió con asesoramiento IA." },
+  { id: "1", name: "Talos Inteligencia", message: "✦ Plataforma B2B de inteligencia de datos y pulso social para consultoras y gobiernos.", linkUrl: "/inteligencia" },
+  { id: "2", name: "Patrocinio Institucional", message: "✦ Tu marca en Talos Diario: alcance calificado a tomadores de decisión. Contacto: comercial@talosdiario.ar", linkUrl: "/inteligencia" },
+  { id: "3", name: "Informes Ejecutivos", message: "✦ Reportes a medida sobre clima social por provincia y monitoreo de agenda 2027.", linkUrl: "/inteligencia" },
+  { id: "4", name: "Espacio Comercial", message: "✦ Anunciá en nuestro periódico digital. Escribinos a comercial@talosdiario.ar", linkUrl: "mailto:comercial@talosdiario.ar" },
 ];
 
 export default function SponsorTickerBar() {
@@ -36,7 +36,7 @@ export default function SponsorTickerBar() {
               linkUrl: ad.linkUrl,
             }));
           if (mapped.length > 0) {
-            setSponsors([...DEFAULT_SPONSORS, ...mapped]);
+            setSponsors(mapped);
           }
         }
       })
@@ -78,7 +78,7 @@ export default function SponsorTickerBar() {
           fontSize: "0.65rem", fontWeight: 800, color: "var(--accent-primary)",
           fontFamily: "Outfit, sans-serif", textTransform: "uppercase", letterSpacing: "0.15em"
         }}>
-          Sponsors & Anuncios
+          Espacio Institucional
         </span>
       </div>
 

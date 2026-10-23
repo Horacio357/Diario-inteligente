@@ -97,7 +97,7 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
               }}>
                 <Mail size={12} color={accentColor} /> Contacto de Redacción
               </div>
-              <a href="mailto:contacto@talosdiario.com" style={{
+              <a href="mailto:redaccion@talosdiario.ar" style={{
                 color: "var(--heading-color)",
                 fontSize: "0.85rem",
                 textDecoration: "none",
@@ -106,7 +106,7 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
                 alignItems: "center",
                 gap: "0.4rem",
               }}>
-                contacto@talosdiario.com
+                redaccion@talosdiario.ar
               </a>
             </div>
 
@@ -193,11 +193,14 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
                 { label: "Tecnología e IA", path: "/tecnologia" },
                 { label: "Ciencia & Futuro", path: "/ciencia" },
                 { label: "Locales & Regiones", path: "/locales" },
+                { label: "Metodología & Fuentes", path: "/metodologia" },
+                { label: "Talos Inteligencia (B2B)", path: "/inteligencia" },
               ].map(s => (
                 <a key={s.path} href={s.path} style={{
                   textDecoration: "none",
                   fontSize: "0.85rem",
-                  color: "var(--text-secondary)",
+                  color: s.path === "/inteligencia" ? accentColor : "var(--text-secondary)",
+                  fontWeight: s.path === "/inteligencia" ? 700 : 400,
                   fontFamily: "'Merriweather', Georgia, serif",
                   transition: "color 0.2s",
                 }}>
@@ -221,7 +224,7 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
               </span>
             </div>
             <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.85rem", lineHeight: 1.45, fontFamily: "'Merriweather', Georgia, serif" }}>
-              Dejanos tu correo y comentario para ponernos en contacto con la redacción.
+              Para suscripciones institucionales, reportes a medida o consultas de redacción.
             </p>
 
             {sent ? (
@@ -246,7 +249,7 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
               <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 <input
                   type="email"
-                  placeholder="Tu correo electrónico"
+                  placeholder="Tu correo corporativo / personal"
                   value={formData.email}
                   onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
                   style={{
@@ -265,7 +268,7 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
 
                 <textarea
                   rows={2}
-                  placeholder="Escribí tu mensaje o sugerencia aquí..."
+                  placeholder="Consulta institucional o mensaje a redacción..."
                   value={formData.message}
                   onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
                   style={{
@@ -304,14 +307,14 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
                     marginTop: "0.2rem",
                   }}
                 >
-                  <Send size={12} /> {sending ? "Enviando..." : "Enviar mensaje"}
+                  <Send size={12} /> {sending ? "Enviando..." : "Enviar consulta"}
                 </button>
               </form>
             )}
           </div>
         </div>
 
-        {/* Bloque Disclaimer & Aviso Legal sin Emojis */}
+        {/* Bloque Disclaimer & Aviso Legal */}
         <div style={{
           marginTop: "2rem",
           marginBottom: "1.5rem",
@@ -324,11 +327,11 @@ export default function Footer({ categoryLabel, categoryColor }: FooterProps) {
           <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", marginBottom: "0.4rem" }}>
             <ShieldAlert size={14} color={accentColor} />
             <span style={{ fontSize: "0.72rem", fontFamily: "Outfit, sans-serif", fontWeight: 800, color: accentColor, textTransform: "uppercase", letterSpacing: "0.12em" }}>
-              Aviso Legal & Descargo de Responsabilidad Institucional
+              Aviso Legal & Metodología de Inteligencia Social [A REVISAR POR UN ABOGADO]
             </span>
           </div>
           <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", lineHeight: 1.55, margin: 0 }}>
-            <strong>Proyecto Talos</strong> es una plataforma de periodismo interactivo respaldada por modelos analíticos automatizados y recopilación de fuentes informativas públicas. Las métricas del <em>Mapa de Calor Territorial</em>, los índices de opinión y los resúmenes temáticos constituyen estimaciones periodísticas automatizadas generadas con fines exclusivamente informativos. No constituyen asesoramiento financiero, consultoría política ni son encuestas electorales oficiales. Todos los derechos sobre artículos y fuentes citadas corresponden a sus respectivos autores y medios emisores.
+            <strong>Talos Diario</strong> es un periódico digital y plataforma de inteligencia de opinión pública respaldada por procesamiento automatizado de lenguaje natural (NLP) sobre fuentes públicas abiertas y auditoría territorial. Las métricas del <em>Pulso Nacional</em> e índices de ánimo social representan estimaciones analíticas automatizadas y no encuestas electorales oficiales tradicionales. Todos los indicadores económicos provienen de fuentes oficiales trazables (BCRA, INDEC, JP Morgan). Para reportes a medida, dashboards analíticos y servicios corporativos B2B con proyección a las elecciones 2027, consultar <a href="/inteligencia" style={{ color: accentColor, textDecoration: "underline" }}>Talos Inteligencia</a>. Todos los derechos reservados.
           </p>
         </div>
 

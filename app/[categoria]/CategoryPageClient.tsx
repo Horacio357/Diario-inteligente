@@ -9,7 +9,6 @@ import HeatMapArgentina from "@/components/HeatMapArgentina";
 import IAConceptAnalyzer from "@/components/IAConceptAnalyzer";
 import PersonalityComparator from "@/components/PersonalityComparator";
 import CommercialAdBlock from "@/components/CommercialAdBlock";
-import GuestEditorialColumn from "@/components/GuestEditorialColumn";
 import { MOCK_PROVINCE_SENTIMENTS } from "@/lib/types";
 
 interface Article {
@@ -374,9 +373,6 @@ export default function CategoryPageClient({
 
           {/* Anuncios Comerciales de Sección */}
           <CommercialAdBlock section={categoria} />
-
-          {/* Columna de Opinión & Radio Mundial */}
-          <GuestEditorialColumn />
 
           {/* Pulso de Cobertura Nacional */}
           <div className="glass-card" style={{ padding: "1.25rem", background: "var(--card-bg)", border: "1px solid var(--glass-border)", borderRadius: "16px" }}>

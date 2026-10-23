@@ -14,11 +14,11 @@ interface Narrative {
 
 // Datos mock de narrativas emergentes para cuando no hay API
 const MOCK_NARRATIVES: Narrative[] = [
-  { keyword: "Inflación", volume: 94, trend: "↑ creciendo", sentiment: -0.7, sample: "La inflación de junio supera las proyecciones del FMI por tercer mes consecutivo" },
-  { keyword: "Elecciones 2025", volume: 78, trend: "↑ creciendo", sentiment: -0.1, sample: "Partidos definen sus listas definitivas con miras al proceso electoral de octubre" },
-  { keyword: "Economía", volume: 65, trend: "↓ tensión", sentiment: -0.4, sample: "El riesgo país baja pero los salarios reales siguen sin recuperarse" },
-  { keyword: "Seguridad", volume: 52, trend: "↑ creciendo", sentiment: -0.6, sample: "Debate nacional sobre la política de seguridad tras incidentes en zonas urbanas" },
-  { keyword: "Derechos sociales", volume: 41, trend: "→ estable", sentiment: 0.2, sample: "Organizaciones civiles celebran avances en legislación de derechos" },
+  { keyword: "Inflación & Precios", volume: 94, trend: "↑ creciente", sentiment: -0.6, sample: "Evolución de precios y proyecciones de desaceleración fiscal y salarial en el segundo semestre" },
+  { keyword: "Escenario Electoral 2027", volume: 78, trend: "↑ creciente", sentiment: -0.1, sample: "Fuerzas provinciales y armados federales inician posicionamiento estratégico hacia los comicios de 2027" },
+  { keyword: "Actividad Económica", volume: 65, trend: "→ estable", sentiment: -0.3, sample: "El riesgo país se estabiliza mientras la industria y el comercio monitorean el consumo interno" },
+  { keyword: "Seguridad Ciudadana", volume: 52, trend: "↑ creciente", sentiment: -0.5, sample: "Demanda de mayor presencia policial y debate legislativo sobre el código penal juvenil" },
+  { keyword: "Energía & Minería", volume: 46, trend: "↑ creciente", sentiment: 0.3, sample: "Inversiones en Vaca Muerta y el RIGI impulsan expectativas positivas en las provincias del sur y Cuyo" },
 ];
 
 export default function NarrativasEmergentes() {
