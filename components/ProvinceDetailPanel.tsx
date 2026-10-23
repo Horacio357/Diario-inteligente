@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 interface ProvinceAnalysis {
   summary: string;
@@ -317,6 +319,31 @@ export default function ProvinceDetailPanel({
                   ))}
                 </div>
               )}
+
+              {/* Enlace a Radiografía Completa */}
+              <div style={{ marginTop: "1rem", paddingTop: "0.85rem", borderTop: "1px solid var(--glass-border)" }}>
+                <Link
+                  href={`/provincia/${provinceId}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "0.75rem 1rem",
+                    background: "var(--accent-primary)",
+                    color: "#ffffff",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    fontFamily: "Outfit, sans-serif",
+                    fontWeight: 800,
+                    fontSize: "0.82rem",
+                    boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+                    transition: "opacity 0.2s ease",
+                  }}
+                >
+                  <span>Ver Radiografía Completa de {provinceName}</span>
+                  <ArrowRight size={15} />
+                </Link>
+              </div>
             </>
           )}
         </div>

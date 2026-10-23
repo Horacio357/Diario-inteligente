@@ -18,6 +18,7 @@ import NewsletterBox from "@/components/NewsletterBox";
 import CitizenOpinionBox from "@/components/CitizenOpinionBox";
 import CitizenVoteModal from "@/components/CitizenVoteModal";
 import MarketIndicatorsBox from "@/components/MarketIndicatorsBox";
+import EarlyAnomalyAlert from "@/components/EarlyAnomalyAlert";
 
 function sentimentDot(s: number) {
   if (s > 0.2) return { color: "#00e676", label: "+" };
@@ -182,6 +183,9 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
         </p>
       </div>
 
+      {/* ─── ALERTA TEMPRANA DEL DÍA (DATA LAB) ─── */}
+      <EarlyAnomalyAlert />
+
       {/* ─── HERO: MAPA + PULSO + NOTA PRINCIPAL ─── */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.5rem" }} className="hero-grid" id="mapa-argentina">
         
@@ -277,7 +281,7 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
                   disabled={topicLoading}
                   style={{
                     background: active ? "var(--accent-primary)" : "var(--glass-bg)",
-                    color: active ? "#050b18" : "var(--text-secondary)",
+                    color: active ? "#ffffff" : "var(--text-secondary)",
                     border: `1px solid ${active ? "var(--accent-primary)" : "var(--glass-border)"}`,
                     borderRadius: "20px",
                     padding: "0.25rem 0.65rem",

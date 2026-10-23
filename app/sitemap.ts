@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import prisma from "@/lib/prisma";
+import { PROVINCES_CATALOG } from "@/lib/provincesData";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://talosdiario.ar";
@@ -11,6 +12,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "hourly",
       priority: 1.0,
+    },
+    {
+      url: `${siteUrl}/inteligencia`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.95,
+    },
+    {
+      url: `${siteUrl}/metodologia`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${siteUrl}/terminos`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${siteUrl}/privacidad`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
     },
     {
       url: `${siteUrl}/politica`,
@@ -56,6 +81,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  // 24 Argentine province routes
+  const provinceRoutes: MetadataRoute.Sitemap = Object.keys(PROVINCES_CATALOG).map((slug) => ({
+    url: `${siteUrl}/provincia/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "daily",
+    priority: 0.88,
+  }));
+
   // Dynamic news article routes
   try {
     const articles = await prisma.article.findMany({
@@ -72,9 +105,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.85,
     }));
 
-    return [...staticRoutes, ...articleRoutes];
+    return [...staticRoutes, ...provinceRoutes, ...articleRoutes];
   } catch (e) {
     console.error("Error generating sitemap from articles:", e);
-    return staticRoutes;
+    return [...staticRoutes, ...provinceRoutes];
   }
 }
