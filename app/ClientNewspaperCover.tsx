@@ -88,6 +88,30 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
       .catch(() => {});
   };
 
+  const [topicLoading, setTopicLoading] = useState(false);
+
+  const handleTopicClick = async (topicId: string) => {
+    if (topicLoading) return;
+    if (topicId === "Actualidad") {
+      setAnalyzedTopic("Actualidad");
+      setAnalyzedArchetype(undefined);
+      refreshPulse();
+      return;
+    }
+    setTopicLoading(true);
+    try {
+      const res = await fetch(`/api/analyze?name=${encodeURIComponent(topicId)}`);
+      if (res.ok) {
+        const d = await res.json();
+        handleAnalysisComplete(d);
+      }
+    } catch {
+      // mantener estado actual sin romper
+    } finally {
+      setTopicLoading(false);
+    }
+  };
+
   const handleAnalysisComplete = (analysis: any) => {
     if (analysis.provinceData) {
       setProvinceSentiments(analysis.provinceData);
@@ -211,9 +235,65 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
               <span>🗳️ Votar en el Pulso</span>
             </button>
           </div>
-          <h3 style={{ fontFamily: "Outfit, sans-serif", fontSize: "1.1rem", fontWeight: 700, color: "var(--heading-color)", marginBottom: "1.25rem" }}>
-            Pulso Nacional en Tiempo Real
-          </h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem", flexWrap: "wrap", gap: "0.5rem" }}>
+            <h3 style={{ fontFamily: "Outfit, sans-serif", fontSize: "1.1rem", fontWeight: 700, color: "var(--heading-color)", margin: 0 }}>
+              Pulso Territorial en Tiempo Real
+            </h3>
+            {topicLoading && (
+              <span style={{ fontSize: "0.68rem", color: "var(--accent-primary)", fontFamily: "Outfit, sans-serif", fontWeight: 700 }}>
+                Actualizando tema...
+              </span>
+            )}
+          </div>
+
+          {/* Selector de temas clave */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            flexWrap: "wrap",
+            marginBottom: "1rem",
+            padding: "0.45rem 0.6rem",
+            background: "rgba(255,255,255,0.02)",
+            borderRadius: "10px",
+            border: "1px solid var(--glass-border)",
+          }}>
+            <span style={{ fontSize: "0.65rem", fontFamily: "Outfit, sans-serif", fontWeight: 700, color: "var(--text-muted)", marginRight: "0.2rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              Tema:
+            </span>
+            {[
+              { id: "Actualidad", label: "General" },
+              { id: "Economía", label: "Economía" },
+              { id: "Seguridad", label: "Seguridad" },
+              { id: "Salud", label: "Salud" },
+              { id: "Educación", label: "Educación" },
+              { id: "Empleo", label: "Empleo" },
+            ].map((t) => {
+              const active = analyzedTopic.toLowerCase() === t.id.toLowerCase() || (t.id === "Actualidad" && (analyzedTopic === "Actualidad" || !analyzedTopic));
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => handleTopicClick(t.id)}
+                  disabled={topicLoading}
+                  style={{
+                    background: active ? "var(--accent-primary)" : "var(--glass-bg)",
+                    color: active ? "#050b18" : "var(--text-secondary)",
+                    border: `1px solid ${active ? "var(--accent-primary)" : "var(--glass-border)"}`,
+                    borderRadius: "20px",
+                    padding: "0.25rem 0.65rem",
+                    fontSize: "0.72rem",
+                    fontFamily: "Outfit, sans-serif",
+                    fontWeight: active ? 800 : 600,
+                    cursor: topicLoading ? "wait" : "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+
           <div style={{ width: "100%", minHeight: "420px" }}>
             <HeatMapArgentina provinceData={provinceSentiments} topic={analyzedTopic} archetype={analyzedArchetype} />
           </div>

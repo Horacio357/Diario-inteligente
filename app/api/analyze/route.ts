@@ -179,6 +179,8 @@ interface GeminiAnalysisResult {
   keywords: string[];
   trend: "rising" | "falling" | "stable";
   narratives: { positive: string[]; negative: string[] };
+  strategicRecommendations?: string[];
+  advancedMetrics?: any;
   aiPowered: true;
 }
 
@@ -252,7 +254,7 @@ CONTEXTO DE SECTOR (Política):
 
   // ─── Prompt de Tema Nacional (si aplica) ─────────────────────────────────────
   if (knownTopic) {
-    const topicPrompt = `Sos el analista de percepción social más riguroso y honesto de Argentina. Tu misión es hacer un diagnóstico REAL de cómo perciben los argentinos el tema "${name}" en el año 2025-2026.
+    const topicPrompt = `Sos el analista de percepción social más riguroso y honesto de Argentina. Tu misión es hacer un diagnóstico REAL de cómo perciben los argentinos el tema "${name}" en el bienio 2026-2027 (con proyección al escenario electoral nacional de octubre de 2027).
 
 DESCRIPCIÓN DEL TEMA: ${knownTopic.description}
 
@@ -739,14 +741,21 @@ export async function GET(request: NextRequest) {
     }
 
     const provinceData = Object.fromEntries(
-      Object.keys(MOCK_PROVINCE_SENTIMENTS).map(k => [
-        k,
-        {
-          sentiment: Math.max(-1, Math.min(1, sentimentOverall + (Math.random()-0.5)*0.4)),
-          intensity: 0.3 + Math.random()*0.5,
-          dominantArchetype: archetype,
-        },
-      ])
+      Object.keys(MOCK_PROVINCE_SENTIMENTS).map(k => {
+        let pSeed = 0;
+        const seedStr = `${name}:${k}`;
+        for (let i = 0; i < seedStr.length; i++) pSeed = (pSeed * 31 + seedStr.charCodeAt(i)) & 0xfffff;
+        const offset = ((pSeed % 100) / 100 - 0.5) * 0.35;
+        const intensitySeed = 0.35 + ((pSeed % 50) / 100);
+        return [
+          k,
+          {
+            sentiment: Math.max(-1, Math.min(1, parseFloat((sentimentOverall + offset).toFixed(2)))),
+            intensity: parseFloat(intensitySeed.toFixed(2)),
+            dominantArchetype: archetype,
+          },
+        ];
+      })
     );
 
     const allText = articles.map((a: { title?: string }) => a.title||"").join(" ").toLowerCase();
@@ -1172,7 +1181,7 @@ export async function GET(request: NextRequest) {
       finalSummary = wikiDesc 
         ? wikiDesc.slice(0, 300) + "..."
         : (articles.length > 0
-          ? `Análisis basado en ${articles.length} artículos recientes. ${ARCHETYPE_CONFIG[archetype].description}`
+          ? `Análisis basado en ${articles.length} artículos recientes. ${ARCHETYPE_CONFIG[archetype as keyof typeof ARCHETYPE_CONFIG]?.description || ""}`
           : `No se encontraron noticias recientes sobre ${name}. Mostrando análisis estimado basado en comportamiento sociológico simulado.`);
       
       finalNarratives = {
