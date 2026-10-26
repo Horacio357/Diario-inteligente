@@ -249,70 +249,236 @@ function SocialPulseWidget() {
 
 // ─── WIDGET PRINCIPAL ────────────────────────────────────────────────────────
 export default function WidgetsBar() {
+  const [activeTab, setActiveTab] = useState<string>("economia");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   const widgets = [
     {
-      id: "clima",
-      icon: <Sun size={14} color="var(--accent-primary)" />,
-      label: "Clima",
-      sublabel: "Buenos Aires",
-      content: <WeatherWidget />,
-    },
-    {
       id: "economia",
-      icon: <TrendingUp size={14} color="var(--accent-primary)" />,
-      label: "Economía",
-      sublabel: "Indicadores clave",
+      icon: <TrendingUp size={15} color="var(--accent-primary)" />,
+      shortLabel: "Economía",
+      label: "Economía & Finanzas",
+      sublabel: "Dólar Blue · Riesgo País · Inflación",
       content: <EconomyWidget />,
     },
     {
+      id: "pulso",
+      icon: <Activity size={15} color="var(--accent-primary)" />,
+      shortLabel: "Ánimo Social",
+      label: "Ánimo Social Federal",
+      sublabel: "Pulso en 24 Provincias",
+      content: <SocialPulseWidget />,
+    },
+    {
       id: "analisis",
-      icon: <Cpu size={14} color="var(--accent-primary)" />,
-      label: "Análisis IA",
-      sublabel: "Perfil de figura pública",
+      icon: <Cpu size={15} color="var(--accent-primary)" />,
+      shortLabel: "Analizador IA",
+      label: "Analizador con IA",
+      sublabel: "Consultá cualquier figura pública o tema",
       content: <QuickAnalysisWidget />,
     },
     {
-      id: "pulso",
-      icon: <Activity size={14} color="var(--accent-primary)" />,
-      label: "Ánimo Social",
-      sublabel: "Pulso 24 provincias",
-      content: <SocialPulseWidget />,
+      id: "clima",
+      icon: <Sun size={15} color="var(--accent-primary)" />,
+      shortLabel: "Clima",
+      label: "Clima en Tiempo Real",
+      sublabel: "Servicio Meteorológico",
+      content: <WeatherWidget />,
     },
   ];
 
+  const handleSelectTab = (id: string, idx: number) => {
+    setActiveTab(id);
+    if (scrollContainerRef.current) {
+      const cardWidth = scrollContainerRef.current.offsetWidth * 0.88;
+      scrollContainerRef.current.scrollTo({
+        left: idx * (cardWidth + 12),
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(2, 1fr)",
-      gap: "1rem",
-    }}
-    className="widgets-bar-grid">
-      {widgets.map(w => (
-        <div key={w.id} className="glass-card" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
-          {/* Widget Header */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", paddingBottom: "0.75rem", borderBottom: "1px solid var(--glass-border)" }}>
-            <span style={{ fontSize: "1rem" }}>{w.icon}</span>
-            <div>
-              <div style={{ fontFamily: "Outfit, sans-serif", fontSize: "0.75rem", fontWeight: 700, color: "var(--accent-primary)", textTransform: "uppercase", letterSpacing: "0.15em" }}>
-                {w.label}
+    <div className="widgets-bar-wrapper">
+      {/* Selector de Chips/Pestañas táctiles para versión celular */}
+      <div className="widgets-mobile-tabs">
+        {widgets.map((w, idx) => {
+          const isActive = activeTab === w.id;
+          return (
+            <button
+              key={w.id}
+              onClick={() => handleSelectTab(w.id, idx)}
+              className={`widgets-tab-chip ${isActive ? "active" : ""}`}
+            >
+              <span style={{ display: "flex", alignItems: "center" }}>{w.icon}</span>
+              <span>{w.shortLabel}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Contenedor: En desktop 4 columnas amplias, en celular carrusel fluido con snap */}
+      <div ref={scrollContainerRef} className="widgets-bar-grid">
+        {widgets.map((w) => (
+          <div
+            key={w.id}
+            id={`widget-${w.id}`}
+            className="glass-card widget-card-item"
+            style={{
+              padding: "1.25rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.85rem",
+              background: "var(--card-bg)",
+              border: "1px solid var(--glass-border)",
+            }}
+          >
+            {/* Widget Header con jerarquía clara */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.6rem",
+                paddingBottom: "0.75rem",
+                borderBottom: "1px solid var(--glass-border)",
+              }}
+            >
+              <div
+                style={{
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "8px",
+                  background: "var(--glass-hover)",
+                  border: "1px solid var(--glass-border)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                {w.icon}
               </div>
-              <div style={{ fontFamily: "Inter, sans-serif", fontSize: "0.65rem", color: "var(--text-muted)" }}>
-                {w.sublabel}
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div
+                  style={{
+                    fontFamily: "Outfit, sans-serif",
+                    fontSize: "0.78rem",
+                    fontWeight: 800,
+                    color: "var(--accent-primary)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.12em",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {w.label}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "0.68rem",
+                    color: "var(--text-muted)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {w.sublabel}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Widget Content */}
-          <div style={{ flex: 1 }}>
-            {w.content}
+            {/* Widget Content con alto completo */}
+            <div style={{ flex: 1, minHeight: "95px", display: "flex", flexDirection: "column" }}>
+              {w.content}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       <style>{`
-        @media (min-width: 600px) {
-          .widgets-bar-grid { grid-template-columns: repeat(4, 1fr) !important; }
+        .widgets-bar-wrapper {
+          width: 100%;
         }
+
+        /* Selector de pestañas móvil */
+        .widgets-mobile-tabs {
+          display: none;
+          gap: 0.4rem;
+          margin-bottom: 0.75rem;
+          overflow-x: auto;
+          padding-bottom: 0.25rem;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        .widgets-mobile-tabs::-webkit-scrollbar {
+          display: none;
+        }
+
+        .widgets-tab-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.4rem 0.75rem;
+          border-radius: 100px;
+          border: 1px solid var(--glass-border);
+          background: var(--card-bg);
+          color: var(--text-secondary);
+          font-family: 'Outfit', sans-serif;
+          font-size: 0.72rem;
+          font-weight: 700;
+          white-space: nowrap;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .widgets-tab-chip.active {
+          background: var(--accent-primary);
+          color: #ffffff;
+          border-color: var(--accent-primary);
+          box-shadow: 0 2px 8px rgba(153, 27, 27, 0.25);
+        }
+
+        /* Desktop: 4 columnas balanceadas */
+        .widgets-bar-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1rem;
+        }
+
+        .widget-card-item {
+          min-width: 0;
+        }
+
+        /* Celular y pantallas pequeñas (<= 768px): carrusel fluido horizontal táctil */
+        @media (max-width: 768px) {
+          .widgets-mobile-tabs {
+            display: flex;
+          }
+
+          .widgets-bar-grid {
+            display: flex !important;
+            overflow-x: auto !important;
+            scroll-snap-type: x mandatory !important;
+            gap: 0.75rem !important;
+            padding-bottom: 0.5rem !important;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+          }
+          .widgets-bar-grid::-webkit-scrollbar {
+            display: none;
+          }
+
+          .widget-card-item {
+            flex: 0 0 88% !important;
+            min-width: 88% !important;
+            scroll-snap-align: center !important;
+            padding: 1.1rem !important;
+            border-radius: 14px !important;
+          }
+        }
+
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.4; }
