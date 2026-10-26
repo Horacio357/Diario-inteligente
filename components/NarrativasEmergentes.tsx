@@ -118,22 +118,22 @@ export default function NarrativasEmergentes() {
               onClick={() => setExpanded(isExpanded ? null : n.keyword)}
               style={{
                 padding: "0.65rem 0.75rem",
-                background: isAlert ? "rgba(239,68,68,0.05)" : "rgba(255,255,255,0.02)",
+                background: isAlert ? "rgba(239,68,68,0.06)" : "var(--primary-900)",
                 borderRadius: "var(--radius-md)",
-                border: `1px solid ${isAlert ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.05)"}`,
+                border: `1px solid ${isAlert ? "rgba(239,68,68,0.28)" : "var(--glass-border)"}`,
                 cursor: "pointer",
                 transition: "all 0.2s ease",
                 animationDelay: `${i * 0.08}s`,
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = isAlert ? "rgba(239,68,68,0.08)" : "rgba(255,255,255,0.04)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = isAlert ? "rgba(239,68,68,0.05)" : "rgba(255,255,255,0.02)"; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = isAlert ? "rgba(239,68,68,0.1)" : "var(--glass-hover)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = isAlert ? "rgba(239,68,68,0.06)" : "var(--primary-900)"; }}
             >
               {/* Fila principal */}
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
                 {/* Ícono de alerta o ranking */}
                 <div style={{ flexShrink: 0, width: "22px", textAlign: "center" }}>
                   {isAlert
-                    ? <AlertTriangle size={14} color="#f97316" />
+                    ? <AlertTriangle size={14} color="#ea580c" />
                     : <span style={{ fontSize: "0.75rem", fontFamily: "Outfit", fontWeight: 800, color: "var(--text-muted)" }}>
                         {i + 1}
                       </span>
@@ -148,7 +148,7 @@ export default function NarrativasEmergentes() {
                     </span>
                     <span style={{
                       fontSize: "0.65rem", fontWeight: 700,
-                      color: isGrowing ? "#34d399" : isFalling ? "#f97316" : "var(--text-muted)",
+                      color: isGrowing ? "#10b981" : isFalling ? "#ea580c" : "var(--text-muted)",
                       display: "flex", alignItems: "center", gap: "0.15rem",
                     }}>
                       {isGrowing ? <TrendingUp size={10} /> : isFalling ? <TrendingDown size={10} /> : null}
@@ -156,9 +156,9 @@ export default function NarrativasEmergentes() {
                     </span>
                     {isAlert && (
                       <span style={{
-                        fontSize: "0.58rem", color: "#f97316", fontWeight: 700,
-                        padding: "0.05rem 0.35rem", background: "rgba(249,115,22,0.12)",
-                        border: "1px solid rgba(249,115,22,0.3)", borderRadius: "4px",
+                        fontSize: "0.58rem", color: "#ea580c", fontWeight: 700,
+                        padding: "0.05rem 0.35rem", background: "rgba(234,88,12,0.12)",
+                        border: "1px solid rgba(234,88,12,0.3)", borderRadius: "4px",
                         textTransform: "uppercase",
                       }}>
                         ⚡ Alta tensión
@@ -194,7 +194,7 @@ export default function NarrativasEmergentes() {
                 <div style={{
                   marginTop: "0.5rem",
                   paddingTop: "0.5rem",
-                  borderTop: "1px solid rgba(255,255,255,0.06)",
+                  borderTop: "1px solid var(--glass-border)",
                   animation: "fadeIn 0.2s ease both",
                 }}>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>

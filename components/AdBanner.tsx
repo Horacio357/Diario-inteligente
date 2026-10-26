@@ -26,7 +26,7 @@ const SECTION_LABELS: Record<string, string> = {
 };
 
 const SECTION_COLORS: Record<string, string> = {
-  global: "#00d4ff",
+  global: "#991b1b",
   politica: "#7c3aed",
   deportes: "#059669",
   tecnologia: "#0ea5e9",
@@ -49,7 +49,7 @@ export default function AdBanner({ section = "global", ads: propAds, compact }: 
   }, [section, propAds]);
 
   const adsList = propAds ?? fetchedAds;
-  const color = SECTION_COLORS[section] ?? "#00d4ff";
+  const color = SECTION_COLORS[section] ?? "#991b1b";
   const sectionLabel = SECTION_LABELS[section] ?? "Talos Diario";
 
   // Si hay un aviso real cargado, mostrarlo
@@ -114,8 +114,8 @@ export default function AdBanner({ section = "global", ads: propAds, compact }: 
           style={{
             width: "100%",
             minHeight: compact ? "90px" : "160px",
-            background: `linear-gradient(135deg, ${color}06 0%, ${color}03 100%)`,
-            border: `1px dashed ${color}30`,
+            background: "var(--card-bg)",
+            border: "1px dashed var(--glass-border)",
             borderRadius: "14px",
             display: "flex",
             flexDirection: "column",
@@ -126,17 +126,6 @@ export default function AdBanner({ section = "global", ads: propAds, compact }: 
             overflow: "hidden",
           }}
         >
-          {/* Scanlines decorativas */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage:
-                "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.012) 3px, rgba(255,255,255,0.012) 4px)",
-              pointerEvents: "none",
-            }}
-          />
-
           {/* Badge de sección */}
           <span
             style={{
@@ -160,7 +149,7 @@ export default function AdBanner({ section = "global", ads: propAds, compact }: 
               fontFamily: "Outfit, sans-serif",
               fontSize: "0.7rem",
               fontWeight: 800,
-              color: `${color}60`,
+              color: "var(--text-secondary)",
               textTransform: "uppercase",
               letterSpacing: "0.25em",
             }}
@@ -171,12 +160,12 @@ export default function AdBanner({ section = "global", ads: propAds, compact }: 
           <span
             style={{
               fontFamily: "Inter, sans-serif",
-              fontSize: "0.65rem",
-              color: "rgba(255,255,255,0.15)",
+              fontSize: "0.68rem",
+              color: "var(--text-muted)",
             }}
           >
             728 × 90 · Contacto:{" "}
-            <span style={{ color: color + "80" }}>publicidad@talos.ar</span>
+            <span style={{ color: "var(--accent-primary)", fontWeight: 600 }}>publicidad@talos.ar</span>
           </span>
         </div>
       )}

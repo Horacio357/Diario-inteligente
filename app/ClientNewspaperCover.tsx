@@ -319,20 +319,21 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
             <div style={{
               borderRadius: "16px",
               overflow: "hidden",
-              border: "1px solid rgba(255,255,255,0.06)",
-              background: "rgba(255,255,255,0.02)",
+              border: "1px solid var(--glass-border)",
+              background: "var(--card-bg)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
               display: "flex",
               flexDirection: "column",
               height: "100%",
               cursor: "pointer",
-              transition: "border-color 0.2s, transform 0.2s",
+              transition: "border-color 0.2s, transform 0.2s, box-shadow 0.2s",
             }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(0,212,255,0.3)";
+              (e.currentTarget as HTMLDivElement).style.borderColor = "var(--accent-primary)";
               (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.06)";
+              (e.currentTarget as HTMLDivElement).style.borderColor = "var(--glass-border)";
               (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
             }}>
               {mainArticle.imageUrl && (
@@ -342,44 +343,44 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
                     style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   <div style={{
                     position: "absolute", inset: 0,
-                    background: "linear-gradient(0deg, rgba(6,8,18,0.97) 0%, rgba(6,8,18,0.4) 50%, transparent 100%)",
+                    background: "linear-gradient(0deg, rgba(12,10,9,0.94) 0%, rgba(12,10,9,0.42) 55%, transparent 100%)",
                   }} />
                   <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "1.5rem 1.75rem" }}>
                     <span style={{
                       fontFamily: "Outfit, sans-serif",
                       fontSize: "0.65rem",
-                      fontWeight: 700,
+                      fontWeight: 800,
                       textTransform: "uppercase",
-                      letterSpacing: "0.2em",
-                      color: "var(--accent-primary)",
-                      background: "var(--glass-hover)",
-                      border: "1px solid var(--glass-border)",
+                      letterSpacing: "0.18em",
+                      color: "#ffffff",
+                      background: "var(--accent-primary)",
+                      border: "1px solid rgba(255,255,255,0.22)",
                       padding: "0.25rem 0.65rem",
                       borderRadius: "6px",
                       display: "inline-block",
                       marginBottom: "0.75rem",
                     }}>
-                      Lectura Interactiva
+                      Nota Principal · Lectura Interactiva
                     </span>
                     <h2 style={{
-                      fontFamily: "Outfit, sans-serif",
-                      fontSize: "clamp(1.4rem, 3vw, 2.2rem)",
+                      fontFamily: "'Merriweather', Georgia, serif",
+                      fontSize: "clamp(1.35rem, 2.8vw, 2rem)",
                       fontWeight: 900,
                       color: "#ffffff",
-                      lineHeight: 1.1,
-                      letterSpacing: "-0.02em",
+                      lineHeight: 1.18,
+                      letterSpacing: "-0.015em",
                     }}>
                       {mainArticle.title}
                     </h2>
                   </div>
                 </div>
               )}
-              <div style={{ padding: "1.25rem 1.75rem 1.5rem" }}>
-                <p style={{ fontSize: "0.95rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.7, fontFamily: "Inter, sans-serif" }}>
+              <div style={{ padding: "1.25rem 1.75rem 1.5rem", borderTop: "1px solid var(--glass-border)" }}>
+                <p style={{ fontSize: "0.95rem", color: "var(--text-secondary)", lineHeight: 1.7, fontFamily: "'Merriweather', Georgia, serif" }}>
                   {mainArticle.summary}
                 </p>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "1rem" }}>
-                  <span style={{ fontSize: "0.72rem", color: "rgba(0,212,255,0.7)", fontFamily: "Outfit, sans-serif", fontWeight: 600 }}>
+                  <span style={{ fontSize: "0.76rem", color: "var(--accent-primary)", fontFamily: "Outfit, sans-serif", fontWeight: 800, letterSpacing: "0.03em" }}>
                     Leer análisis completo →
                   </span>
                 </div>
@@ -409,12 +410,12 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
       {/* ─── WIDGETS BAR ─── */}
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1rem" }}>
-          <span style={{ width: "20px", height: "1px", background: "#00d4ff", opacity: 0.4 }} />
+          <span style={{ width: "20px", height: "2px", background: "var(--accent-primary)", opacity: 0.7 }} />
           <span style={{
             fontFamily: "Outfit, sans-serif",
             fontSize: "0.62rem",
-            fontWeight: 700,
-            color: "rgba(0,212,255,0.7)",
+            fontWeight: 800,
+            color: "var(--accent-primary)",
             textTransform: "uppercase",
             letterSpacing: "0.22em",
           }}>
@@ -734,14 +735,14 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
           {/* PULSO DE LA CALLE */}
           <div className="glass-card" style={{ padding: "1.5rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1.1rem" }}>
-              <TrendingUp size={13} color="#00d4ff" />
+              <TrendingUp size={13} color="var(--accent-primary)" />
               <span style={{
                 fontFamily: "Outfit, sans-serif",
                 fontSize: "0.62rem",
-                fontWeight: 700,
+                fontWeight: 800,
                 textTransform: "uppercase",
                 letterSpacing: "0.22em",
-                color: "#00d4ff",
+                color: "var(--accent-primary)",
               }}>
                 El Pulso de la Calle
               </span>

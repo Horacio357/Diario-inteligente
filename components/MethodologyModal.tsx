@@ -86,7 +86,7 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
             position: "absolute",
             top: "1.2rem",
             right: "1.2rem",
-            background: "rgba(255,255,255,0.06)",
+            background: "var(--primary-900)",
             border: "1px solid var(--glass-border)",
             borderRadius: "50%",
             width: "32px",
@@ -99,12 +99,12 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
             transition: "all 0.2s ease",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#ffffff";
-            e.currentTarget.style.background = "rgba(255,255,255,0.15)";
+            e.currentTarget.style.color = "var(--heading-color)";
+            e.currentTarget.style.background = "var(--glass-hover)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.color = "var(--text-muted)";
-            e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+            e.currentTarget.style.background = "var(--primary-900)";
           }}
         >
           <X size={16} />
@@ -121,8 +121,8 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
                 color: "var(--accent-primary)",
                 textTransform: "uppercase",
                 letterSpacing: "0.2em",
-                background: "rgba(0, 212, 255, 0.1)",
-                border: "1px solid rgba(0, 212, 255, 0.25)",
+                background: "var(--glass-hover)",
+                border: "1px solid var(--glass-border)",
                 padding: "0.2rem 0.6rem",
                 borderRadius: "100px",
               }}
@@ -158,7 +158,7 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
         {/* Esquema visual del "Choque de Datos" */}
         <div
           style={{
-            background: "rgba(255,255,255,0.02)",
+            background: "var(--primary-900)",
             border: "1px solid var(--glass-border)",
             borderRadius: "12px",
             padding: "1rem",
@@ -182,7 +182,7 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
 
           {/* Bloque 2: Lectores */}
           <div style={{ padding: "0.5rem" }}>
-            <Users size={20} color="#00e676" style={{ margin: "0 auto 0.3rem" }} />
+            <Users size={20} color="#10b981" style={{ margin: "0 auto 0.3rem" }} />
             <div style={{ fontFamily: "Outfit, sans-serif", fontSize: "0.75rem", fontWeight: 700 }}>Voz Ciudadana</div>
             <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "0.15rem" }}>
               Votos auditados (1 por semana por lector)
@@ -192,8 +192,8 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
           <span style={{ color: "var(--accent-primary)", fontWeight: 800, fontSize: "1rem" }}>=</span>
 
           {/* Bloque 3: Choque / Calibración */}
-          <div style={{ padding: "0.5rem", background: "rgba(0, 212, 255, 0.05)", borderRadius: "8px", border: "1px solid rgba(0, 212, 255, 0.2)" }}>
-            <Scale size={20} color="#ffc400" style={{ margin: "0 auto 0.3rem" }} />
+          <div style={{ padding: "0.5rem", background: "var(--glass-hover)", borderRadius: "8px", border: "1px solid var(--glass-border)" }}>
+            <Scale size={20} color="#d97706" style={{ margin: "0 auto 0.3rem" }} />
             <div style={{ fontFamily: "Outfit, sans-serif", fontSize: "0.75rem", fontWeight: 700, color: "var(--accent-primary)" }}>
               Brecha & Calibración
             </div>
@@ -208,7 +208,7 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
           <div
             style={{
               padding: "0.75rem 0.9rem",
-              background: "rgba(255,255,255,0.02)",
+              background: "var(--primary-900)",
               borderLeft: "3px solid var(--accent-primary)",
               borderRadius: "0 8px 8px 0",
             }}
@@ -224,8 +224,8 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
           <div
             style={{
               padding: "0.75rem 0.9rem",
-              background: "rgba(255,255,255,0.02)",
-              borderLeft: "3px solid #00e676",
+              background: "var(--primary-900)",
+              borderLeft: "3px solid #10b981",
               borderRadius: "0 8px 8px 0",
             }}
           >
@@ -240,8 +240,8 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
           <div
             style={{
               padding: "0.75rem 0.9rem",
-              background: "rgba(255,255,255,0.02)",
-              borderLeft: "3px solid #ffc400",
+              background: "var(--primary-900)",
+              borderLeft: "3px solid #d97706",
               borderRadius: "0 8px 8px 0",
             }}
           >
@@ -257,7 +257,7 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
         {/* Fuentes Citadas */}
         <div
           style={{
-            background: "rgba(255,255,255,0.03)",
+            background: "var(--primary-900)",
             border: "1px solid var(--glass-border)",
             borderRadius: "10px",
             padding: "0.85rem 1rem",
@@ -285,8 +285,8 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
                 style={{
                   fontSize: "0.68rem",
                   fontFamily: "Inter, sans-serif",
-                  background: "rgba(0, 212, 255, 0.08)",
-                  border: "1px solid rgba(0, 212, 255, 0.2)",
+                  background: "var(--card-bg)",
+                  border: "1px solid var(--glass-border)",
                   color: "var(--heading-color)",
                   padding: "0.2rem 0.55rem",
                   borderRadius: "6px",
@@ -319,8 +319,8 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
             onClick={handleDownload}
             disabled={downloading}
             style={{
-              background: downloadSuccess ? "#00e676" : "var(--accent-primary)",
-              color: downloadSuccess ? "#000000" : "#000000",
+              background: downloadSuccess ? "#10b981" : "var(--accent-primary)",
+              color: downloadSuccess ? "#ffffff" : "var(--btn-primary-text, #ffffff)",
               border: "none",
               borderRadius: "8px",
               padding: "0.55rem 1.1rem",
@@ -331,7 +331,7 @@ export default function MethodologyModal({ isOpen, onClose, pdfData }: Methodolo
               display: "inline-flex",
               alignItems: "center",
               gap: "0.45rem",
-              boxShadow: "0 0 15px rgba(0, 212, 255, 0.3)",
+              boxShadow: "var(--shadow-glow)",
               transition: "all 0.2s ease",
             }}
           >

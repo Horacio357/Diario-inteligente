@@ -48,22 +48,23 @@ export default function InteractiveContent({ content }: { content: string }) {
           key={match.index}
           onClick={() => handleEntityClick(type, name)}
           style={{
-            background: type === "person" ? "rgba(0, 212, 255, 0.15)" : "rgba(245, 158, 11, 0.15)",
-            border: `1px solid ${type === "person" ? "rgba(0, 212, 255, 0.4)" : "rgba(245, 158, 11, 0.4)"}`,
-            color: type === "person" ? "#00d4ff" : "#fbbf24",
+            background: type === "person" ? "var(--glass-hover)" : "rgba(180, 83, 9, 0.1)",
+            border: `1px solid ${type === "person" ? "var(--card-border)" : "rgba(180, 83, 9, 0.35)"}`,
+            color: type === "person" ? "var(--accent-primary)" : "#b45309",
             borderRadius: "6px",
-            padding: "0.1rem 0.5rem",
+            padding: "0.08rem 0.5rem",
             margin: "0 0.2rem",
             fontWeight: 700,
+            fontSize: "0.92em",
             cursor: "pointer",
             fontFamily: "Outfit, sans-serif",
             transition: "all 0.2s ease"
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = type === "person" ? "rgba(0, 212, 255, 0.3)" : "rgba(245, 158, 11, 0.3)";
+            e.currentTarget.style.background = type === "person" ? "var(--accent-glow)" : "rgba(180, 83, 9, 0.2)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = type === "person" ? "rgba(0, 212, 255, 0.15)" : "rgba(245, 158, 11, 0.15)";
+            e.currentTarget.style.background = type === "person" ? "var(--glass-hover)" : "rgba(180, 83, 9, 0.1)";
           }}
         >
           {type === "person" ? "👤" : "🌎"} {name}
@@ -95,15 +96,16 @@ export default function InteractiveContent({ content }: { content: string }) {
     <>
       <div>{renderContent()}</div>
 
-      {/* Modal / Sidebar con la Inteligencia Artifical */}
+      {/* Modal / Sidebar con la Inteligencia Artificial */}
       {activeAnalysis && (
         <div style={{
           position: "fixed", top: 0, right: 0, bottom: 0,
           width: "min(500px, 100vw)",
-          background: "rgba(10, 14, 26, 0.98)",
+          background: "var(--card-bg)",
+          color: "var(--text-primary)",
           backdropFilter: "blur(24px)",
-          borderLeft: "1px solid var(--glass-border)",
-          boxShadow: "-20px 0 60px rgba(0,0,0,0.8)",
+          borderLeft: "2px solid var(--glass-border)",
+          boxShadow: "-16px 0 48px rgba(0,0,0,0.28)",
           zIndex: 9999,
           overflowY: "auto",
           padding: "2rem",
@@ -111,7 +113,7 @@ export default function InteractiveContent({ content }: { content: string }) {
         }}>
           <button
             onClick={() => { setActiveAnalysis(null); setAnalysisData(null); }}
-            style={{ position: "absolute", top: "1rem", right: "1rem", background: "transparent", border: "none", color: "var(--text-muted)", fontSize: "1.5rem", cursor: "pointer" }}
+            style={{ position: "absolute", top: "1rem", right: "1rem", background: "var(--primary-900)", border: "1px solid var(--glass-border)", borderRadius: "50%", width: "34px", height: "34px", color: "var(--text-primary)", fontSize: "1rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
             ✕
           </button>
@@ -120,7 +122,7 @@ export default function InteractiveContent({ content }: { content: string }) {
             <div className="section-label" style={{ marginBottom: "0.5rem" }}>
               IA Análisis {activeAnalysis.type === "topic" ? "Territorial" : "de Perfil"}
             </div>
-            <h2 style={{ fontFamily: "Outfit", fontSize: "1.5rem", fontWeight: 800 }}>
+            <h2 style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: "1.5rem", fontWeight: 800, color: "var(--heading-color)" }}>
               {activeAnalysis.query}
             </h2>
           </div>
