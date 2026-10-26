@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useRef, useMemo, TouchEvent } from "react";
+import Link from "next/link";
 import { BookOpen, ChevronLeft, ChevronRight, Smartphone, Sparkles, Layers, Eye, MoveHorizontal } from "lucide-react";
 
 interface FlipbookPage {
   id: number | string;
+  slug?: string;
   title: string;
   category: string;
   date: string;
@@ -95,6 +97,7 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
     if (articles && articles.length > 0) {
       const mapped = articles.slice(0, 4).map((art, idx) => ({
         id: idx + 1,
+        slug: art.slug,
         category: art.category || "Actualidad",
         date: art.publishedAt ? new Date(art.publishedAt).toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" }) : "Edición de Hoy",
         title: art.title || "Crónica de Coyuntura Nacional",
@@ -892,6 +895,47 @@ export default function NewspaperFlipbook({ articles }: { articles?: any[] }) {
                 )}
               </div>
             )}
+          </div>
+
+          {/* Barra inferior del pliego con enlace directo a la nota completa */}
+          <div
+            style={{
+              marginTop: "1.15rem",
+              paddingTop: "0.75rem",
+              borderTop: "1px dashed var(--fb-sheet-border)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "0.5rem",
+              position: "relative",
+              zIndex: 4,
+            }}
+          >
+            <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontFamily: "Georgia, serif", fontStyle: "italic" }}>
+              Edición impresa digitalizada · {page.category}
+            </span>
+            <Link
+              href={page.slug ? `/noticias/${page.slug}` : "/inteligencia"}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.35rem",
+                fontFamily: "Outfit, sans-serif",
+                fontSize: "0.76rem",
+                fontWeight: 800,
+                color: "var(--accent-primary)",
+                textDecoration: "none",
+                padding: "0.3rem 0.7rem",
+                borderRadius: "6px",
+                background: "var(--fb-box-bg)",
+                border: "1px solid var(--fb-box-border)",
+                letterSpacing: "0.03em",
+              }}
+            >
+              {page.slug ? "Leer crónica completa →" : "Explorar informe completo →"}
+            </Link>
           </div>
 
           {/* Sombra de plegado central estilo pliego de diario (SOLO visible en Desktop, oculta en móvil) */}

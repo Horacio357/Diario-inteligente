@@ -309,12 +309,13 @@ export default function AdminClient() {
   const [authError, setAuthError] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string; role: "ADMIN" | "EDITOR" | "REDACTOR" } | null>(null);
 
-  const [tab, setTab] = useState<"analytics" | "spaces" | "articles" | "ads" | "users" | "newsletter">("analytics");
+  const [tab, setTab] = useState<"analytics" | "spaces" | "articles" | "ads" | "users" | "newsletter" | "leads">("analytics");
   const [articles, setArticles] = useState<Article[]>([]);
   const [ads, setAds] = useState<Ad[]>([]);
   const [spaces, setSpaces] = useState<NewspaperSpace[]>([]);
   const [usersList, setUsersList] = useState<UserRole[]>([]);
   const [subscribers, setSubscribers] = useState<{ id: string; email: string; name?: string; createdAt: string }[]>([]);
+  const [b2bLeads, setB2bLeads] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -346,13 +347,14 @@ export default function AdminClient() {
   const fetchData = async (t: string) => {
     setLoading(true);
     try {
-      const [arRes, adRes, spRes, anRes, usRes, newsRes] = await Promise.all([
+      const [arRes, adRes, spRes, anRes, usRes, newsRes, leadsRes] = await Promise.all([
         fetch(`/api/admin?resource=articles`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
         fetch(`/api/admin?resource=ads`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
         fetch(`/api/admin/spaces`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
         fetch(`/api/admin/analytics`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : null),
         fetch(`/api/admin/users`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
         fetch(`/api/newsletter?token=${encodeURIComponent(t)}`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
+        fetch(`/api/demo-request?token=${encodeURIComponent(t)}`, { headers: { "x-admin-token": t } }).then(r => r.ok ? r.json() : {}),
       ]);
       setArticles((arRes as any).articles ?? []);
       setAds((adRes as any).ads ?? []);
@@ -360,6 +362,7 @@ export default function AdminClient() {
       if (anRes) setAnalytics(anRes);
       setUsersList((usRes as any).users ?? []);
       setSubscribers((newsRes as any).subscribers ?? []);
+      setB2bLeads((leadsRes as any).demoRequests ?? []);
     } catch {}
     finally { setLoading(false); }
   };
@@ -515,6 +518,13 @@ export default function AdminClient() {
                 borderRadius: "8px", padding: "0.5rem 1rem", color: tab === "newsletter" ? "#00d4ff" : "rgba(255,255,255,0.5)",
                 fontFamily: "Outfit, sans-serif", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem"
               }}><Mail size={14} /> Newsletter ({subscribers.length})</button>
+
+              <button onClick={() => setTab("leads")} style={{
+                background: tab === "leads" ? "rgba(0,212,255,0.12)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${tab === "leads" ? "rgba(0,212,255,0.3)" : "rgba(255,255,255,0.07)"}`,
+                borderRadius: "8px", padding: "0.5rem 1rem", color: tab === "leads" ? "#00d4ff" : "rgba(255,255,255,0.5)",
+                fontFamily: "Outfit, sans-serif", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem"
+              }}><Sparkles size={14} /> Leads B2B ({b2bLeads.length})</button>
             </>
           )}
 
@@ -840,6 +850,119 @@ export default function AdminClient() {
                     </span>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── TAB: B2B LEADS (TALOS INTELIGENCIA) ─── */}
+        {tab === "leads" && !isRedactor && (
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
+              <div>
+                <h2 style={{ fontFamily: "Outfit, sans-serif", fontWeight: 800, fontSize: "1.2rem", color: "#fff" }}>
+                  💼 Solicitudes de Demo Corporativa · Talos Inteligencia ({b2bLeads.length})
+                </h2>
+                <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)", fontFamily: "Inter, sans-serif" }}>
+                  Consultoras, equipos de gobierno, empresas y medios que solicitaron contacto desde /inteligencia.
+                </p>
+              </div>
+              <Btn onClick={() => {
+                const csv = "Nombre,Email,Organizacion,Cargo,Telefono,Distrito,Plan,Estado,Fecha\n" +
+                  b2bLeads.map(l => `"${l.name || ""}","${l.email || ""}","${l.organization || ""}","${l.role || ""}","${l.phone || ""}","${l.district || ""}","${l.planInterest || ""}","${l.status || ""}","${new Date(l.createdAt).toLocaleDateString("es-AR")}"`).join("\n");
+                const blob = new Blob([csv], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `leads-b2b-talos-${Date.now()}.csv`;
+                a.click();
+              }} variant="secondary" size="sm">
+                <FileText size={12} /> Exportar Leads CSV
+              </Btn>
+            </div>
+
+            {b2bLeads.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "3rem", color: "rgba(255,255,255,0.25)", fontFamily: "Inter, sans-serif" }}>
+                Aún no hay solicitudes de demostración registradas desde /inteligencia.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+                {b2bLeads.map((lead, idx) => {
+                  const isContacted = lead.status === "CONTACTED";
+                  return (
+                    <div key={lead.id || idx} style={{
+                      background: "rgba(255,255,255,0.02)",
+                      border: `1px solid ${isContacted ? "rgba(0,230,118,0.22)" : "rgba(0,212,255,0.18)"}`,
+                      borderRadius: "12px",
+                      padding: "1rem 1.15rem",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      gap: "1rem",
+                      flexWrap: "wrap",
+                    }}>
+                      <div style={{ flex: 1, minWidth: "240px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.3rem" }}>
+                          <span style={{ fontFamily: "Outfit, sans-serif", fontWeight: 800, fontSize: "0.95rem", color: "#fff" }}>
+                            {lead.name}
+                          </span>
+                          <span style={{
+                            fontSize: "0.65rem",
+                            fontFamily: "Outfit, sans-serif",
+                            fontWeight: 700,
+                            padding: "0.15rem 0.5rem",
+                            borderRadius: "100px",
+                            background: "rgba(0,212,255,0.12)",
+                            color: "#00d4ff",
+                            textTransform: "uppercase",
+                          }}>
+                            {lead.organization}
+                          </span>
+                          {lead.role && (
+                            <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", fontFamily: "Inter, sans-serif" }}>
+                              · {lead.role}
+                            </span>
+                          )}
+                        </div>
+
+                        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", fontSize: "0.78rem", color: "rgba(255,255,255,0.7)", fontFamily: "Inter, sans-serif", marginBottom: "0.35rem" }}>
+                          <span>📧 <a href={`mailto:${lead.email}`} style={{ color: "#00d4ff", textDecoration: "none" }}>{lead.email}</a></span>
+                          {lead.phone && <span>📱 {lead.phone}</span>}
+                          {lead.district && <span>📍 {lead.district}</span>}
+                          <span>🎯 Plan: <strong style={{ color: "#fff", textTransform: "uppercase" }}>{lead.planInterest || "Federal"}</strong></span>
+                        </div>
+
+                        {lead.message && (
+                          <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)", fontFamily: "Inter, sans-serif", margin: "0.35rem 0 0", padding: "0.5rem 0.7rem", background: "rgba(255,255,255,0.03)", borderRadius: "8px", borderLeft: "2px solid #00d4ff" }}>
+                            “{lead.message}”
+                          </p>
+                        )}
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.45rem" }}>
+                        <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.4)", fontFamily: "Inter, sans-serif" }}>
+                          {new Date(lead.createdAt).toLocaleString("es-AR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                        <Btn
+                          size="sm"
+                          variant={isContacted ? "secondary" : "primary"}
+                          onClick={async () => {
+                            const nextStatus = isContacted ? "PENDING" : "CONTACTED";
+                            await fetch("/api/demo-request", {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json", "x-admin-token": token },
+                              body: JSON.stringify({ id: lead.id, status: nextStatus }),
+                            });
+                            showToast(nextStatus === "CONTACTED" ? "Marcado como contactado ✓" : "Marcado como pendiente");
+                            fetchData(token);
+                          }}
+                        >
+                          {isContacted ? "✅ Contactado" : "⏳ Marcar Contactado"}
+                        </Btn>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

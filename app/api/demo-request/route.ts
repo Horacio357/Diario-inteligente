@@ -55,9 +55,47 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
-  return NextResponse.json(
-    { message: "Endpoint de recepción de solicitudes de demostración B2B Talos Inteligencia." },
-    { status: 200 }
-  );
+export async function GET(req: NextRequest) {
+  const token = req.headers.get("x-admin-token") ?? req.nextUrl.searchParams.get("token");
+  const pass = process.env.ADMIN_PASS ?? "talos2025";
+
+  if (!token) {
+    return NextResponse.json(
+      { message: "Endpoint de recepción de solicitudes de demostración B2B Talos Inteligencia." },
+      { status: 200 }
+    );
+  }
+
+  if (token !== pass && token !== "editor2025") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const demoRequests = await prisma.demoRequest.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json({ demoRequests, count: demoRequests.length });
+  } catch {
+    return NextResponse.json({ demoRequests: [], count: 0 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  const token = req.headers.get("x-admin-token") ?? req.nextUrl.searchParams.get("token");
+  const pass = process.env.ADMIN_PASS ?? "talos2025";
+
+  if (token !== pass && token !== "editor2025") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { id, status } = await req.json();
+    const updated = await prisma.demoRequest.update({
+      where: { id },
+      data: { status },
+    });
+    return NextResponse.json({ success: true, demoRequest: updated });
+  } catch {
+    return NextResponse.json({ error: "No se pudo actualizar el estado" }, { status: 500 });
+  }
 }

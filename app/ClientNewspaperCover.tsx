@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import NarrativasEmergentes from "@/components/NarrativasEmergentes";
-import { Zap, Clock, TrendingUp, Wifi, Sparkles, BarChart3, ShieldCheck, Mail } from "lucide-react";
+import { Zap, Clock, TrendingUp, Wifi, Sparkles, BarChart3, ShieldCheck, Mail, MapPin, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import HeatMapArgentina from "@/components/HeatMapArgentina";
 import { MOCK_PROVINCE_SENTIMENTS } from "@/lib/types";
+import { PROVINCES_CATALOG } from "@/lib/provincesData";
 import WidgetsBar from "./WidgetsBar";
 import PulsoNacional from "@/components/PulsoNacional";
 import NewspaperFlipbook from "@/components/NewspaperFlipbook";
@@ -78,6 +79,38 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
   const [analyzedTopic, setAnalyzedTopic] = useState<string>("Actualidad");
   const [analyzedArchetype, setAnalyzedArchetype] = useState<string | undefined>(undefined);
   const [voteModalOpen, setVoteModalOpen] = useState(false);
+  const [showAllProvinces, setShowAllProvinces] = useState(false);
+  const [dossierEmail, setDossierEmail] = useState("");
+  const [dossierLoading, setDossierLoading] = useState(false);
+  const [dossierFeedback, setDossierFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  const handleDossierSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!dossierEmail || !dossierEmail.includes("@")) {
+      setDossierFeedback({ ok: false, msg: "Ingresá un correo válido." });
+      return;
+    }
+    setDossierLoading(true);
+    setDossierFeedback(null);
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: dossierEmail.trim(), name: "Dossier Ejecutivo" }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setDossierFeedback({ ok: true, msg: data.message || "¡Suscripción confirmada al Dossier Ejecutivo!" });
+        setDossierEmail("");
+      } else {
+        setDossierFeedback({ ok: false, msg: data.error || "No se pudo procesar la suscripción." });
+      }
+    } catch {
+      setDossierFeedback({ ok: false, msg: "Error de conexión. Reintentá en unos segundos." });
+    } finally {
+      setDossierLoading(false);
+    }
+  };
 
   const refreshPulse = () => {
     fetch("/api/province/pulse")
@@ -301,6 +334,69 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
           <div style={{ width: "100%", minHeight: "420px" }}>
             <HeatMapArgentina provinceData={provinceSentiments} topic={analyzedTopic} archetype={analyzedArchetype} />
           </div>
+
+          {/* Directorio Rápido de las 24 Jurisdicciones (Ideal para móvil y acceso directo) */}
+          <div style={{ marginTop: "0.85rem", paddingTop: "0.75rem", borderTop: "1px dashed var(--glass-border)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", marginBottom: "0.5rem" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", fontFamily: "Outfit, sans-serif", fontSize: "0.66rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--accent-primary)" }}>
+                <MapPin size={12} /> Radiografías por Distrito (24)
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowAllProvinces(v => !v)}
+                style={{
+                  background: "var(--primary-900)",
+                  border: "1px solid var(--glass-border)",
+                  borderRadius: "6px",
+                  padding: "0.2rem 0.5rem",
+                  fontSize: "0.65rem",
+                  fontFamily: "Outfit, sans-serif",
+                  fontWeight: 700,
+                  color: "var(--text-secondary)",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.25rem",
+                }}
+              >
+                {showAllProvinces ? <>Compactar <ChevronUp size={11} /></> : <>Ver las 24 <ChevronDown size={11} /></>}
+              </button>
+            </div>
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
+              {Object.values(PROVINCES_CATALOG)
+                .slice(0, showAllProvinces ? 24 : 8)
+                .map((prov) => {
+                  const s = provinceSentiments?.[prov.slug]?.sentiment ?? 0;
+                  const dot = sentimentDot(s);
+                  const shortName = prov.slug === "buenos-aires-ciudad" ? "CABA" : prov.slug === "tierra-del-fuego" ? "T. del Fuego" : prov.slug === "santiago-del-estero" ? "Sgo. del Estero" : prov.name;
+                  return (
+                    <Link
+                      key={prov.slug}
+                      href={`/provincia/${prov.slug}`}
+                      style={{
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                        padding: "0.22rem 0.5rem",
+                        borderRadius: "6px",
+                        background: "var(--primary-900)",
+                        border: "1px solid var(--glass-border)",
+                        fontSize: "0.68rem",
+                        fontFamily: "Outfit, sans-serif",
+                        fontWeight: 600,
+                        color: "var(--text-primary)",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: dot.color, flexShrink: 0 }} />
+                      <span>{shortName}</span>
+                    </Link>
+                  );
+                })}
+            </div>
+          </div>
         </div>
 
         {/* PULSO NACIONAL (Centro) */}
@@ -497,18 +593,23 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
           {/* Promoción Exclusiva: Talos Premium / Newsletter */}
           <div className="glass-card" style={{
             padding: "1.25rem",
-            background: "linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(124, 58, 237, 0.05))",
+            background: "var(--card-bg)",
             border: "1px solid var(--glass-border)",
             borderRadius: "16px",
             display: "flex",
             flexDirection: "column",
             gap: "0.65rem"
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              <Sparkles size={14} color="var(--accent-primary)" />
-              <span style={{ fontSize: "0.62rem", fontFamily: "Outfit, sans-serif", fontWeight: 800, color: "var(--accent-primary)", textTransform: "uppercase", letterSpacing: "0.15em" }}>
-                PROMOCIÓN EXCLUSIVA TALOS
-              </span>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.4rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <Sparkles size={14} color="var(--accent-primary)" />
+                <span style={{ fontSize: "0.62rem", fontFamily: "Outfit, sans-serif", fontWeight: 800, color: "var(--accent-primary)", textTransform: "uppercase", letterSpacing: "0.15em" }}>
+                  BRIEFING EJECUTIVO TALOS
+                </span>
+              </div>
+              <Link href="/inteligencia" style={{ fontSize: "0.65rem", fontFamily: "Outfit, sans-serif", fontWeight: 700, color: "var(--accent-primary)", textDecoration: "none" }}>
+                Planes B2B →
+              </Link>
             </div>
             <h4 style={{ fontFamily: "Merriweather, Georgia, serif", fontSize: "0.95rem", fontWeight: 800, color: "var(--heading-color)" }}>
               Dossier Ejecutivo & Alertas Tempranas
@@ -516,26 +617,49 @@ export default function ClientNewspaperCover({ editorialArticles }: { editorialA
             <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: 1.5, fontFamily: "Merriweather, Georgia, serif" }}>
               Recibí todas las mañanas el resumen de inteligencia con los cambios de humor social y tendencias clave del país.
             </p>
-            <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.2rem" }}>
+            <form onSubmit={handleDossierSubscribe} style={{ display: "flex", gap: "0.4rem", marginTop: "0.2rem" }}>
               <input
                 type="email"
+                value={dossierEmail}
+                onChange={(e) => setDossierEmail(e.target.value)}
                 placeholder="Tu e-mail corporativo..."
+                required
                 style={{
                   flex: 1,
                   background: "var(--primary-900)",
                   border: "1px solid var(--glass-border)",
                   borderRadius: "8px",
-                  padding: "0.4rem 0.65rem",
+                  padding: "0.45rem 0.65rem",
                   color: "var(--heading-color)",
                   fontSize: "0.75rem",
                   fontFamily: "Merriweather, Georgia, serif",
                   outline: "none"
                 }}
               />
-              <button className="btn-primary" style={{ fontSize: "0.72rem", padding: "0.4rem 0.75rem" }}>
-                Suscribir
+              <button
+                type="submit"
+                disabled={dossierLoading}
+                className="btn-primary"
+                style={{ fontSize: "0.72rem", padding: "0.45rem 0.85rem", opacity: dossierLoading ? 0.7 : 1 }}
+              >
+                {dossierLoading ? "Enviando..." : "Suscribir"}
               </button>
-            </div>
+            </form>
+            {dossierFeedback && (
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.35rem",
+                fontSize: "0.72rem",
+                fontFamily: "Inter, sans-serif",
+                fontWeight: 600,
+                color: dossierFeedback.ok ? "#10b981" : "#ef4444",
+                marginTop: "0.1rem"
+              }}>
+                {dossierFeedback.ok && <CheckCircle2 size={13} />}
+                <span>{dossierFeedback.msg}</span>
+              </div>
+            )}
           </div>
 
           {/* Bloque de Información General & Indicadores */}
